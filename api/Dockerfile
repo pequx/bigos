@@ -1,5 +1,5 @@
 FROM node:8-alpine
-LABEL maintainer="Clevertech DevOps <support@clevertech.biz>"
+LABEL maintainer="github.com/pequx"
 
 # Update OS
 RUN apk --no-cache add ca-certificates python2 make g++ && update-ca-certificates

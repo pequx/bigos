@@ -51,6 +51,7 @@
     "knex": "^0.13.0",
     "node-fetch": "^1.7.3",
     "pg": "^7.3.0",
+    "random-js": "^2.0.0",
     "raven": "^2.2.1",
     "useragent": "^2.3.0",
     "winston": "*"

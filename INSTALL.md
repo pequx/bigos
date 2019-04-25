@@ -3,14 +3,14 @@
 > If you have installed Docker via `brew`, uninstall it via `brew uninstall docker`. Optionally, see the [Migrate from Boot2Docker](https://docs.docker.com/v1.8/installation/mac/) section.
 
 1. Install the new [Docker for MAC](http://www.docker.com/products/docker#/mac).
-2. Edit your `/etc/hosts` file. Add the line `127.0.0.1 local.cleverbuild.biz`.
+2. Edit your `/etc/hosts` file. Add the line `127.0.0.1 bigos.local`.
 
 3. To test if your configuration is correct, run `docker ps`. You should see something like:
 
-    ```
-    $ docker ps
-    CONTAINER ID        IMAGE
-    ```
+   ```
+   $ docker ps
+   CONTAINER ID        IMAGE
+   ```
 
 4. You can adjust Docker resource usage clicking on the Docker icon -> Preferences -> Advanced.
 
@@ -21,7 +21,7 @@ If you have troubles, please contact DevOps.
 1. [Install](https://docs.docker.com/engine/installation/) Docker. You don't need `Docker Machine` on Linux.
 2. [Allow](https://docs.docker.com/v1.4/installation/ubuntulinux/#giving-non-root-access) your non-root user to control `docker`.
 3. [Install](https://docs.docker.com/compose/install/) Docker Compose.
-4. Edit your `/etc/hosts` file. Add the line `127.0.0.1 local.cleverbuild.biz`.
+4. Edit your `/etc/hosts` file. Add the line `127.0.0.1 bigos.local`.
 
 To test if your configuration is correct, run `docker ps`. You should see something like:
 
@@ -61,21 +61,23 @@ So, the whole procedure looks like this:
 4. Clone the repository, enable sharing of the disk containing the repository in Docker parameters. Install NPM dependencies if needed.
 5. Open the project folder using Git Bash, then run the startup script like that:
 
-    ```bash
-    MSYS_NO_PATHCONV=1 docker/run
-    ```
+   ```bash
+   MSYS_NO_PATHCONV=1 docker/run
+   ```
 
-    This will tell Git Bash to correctly process absolute paths inside the `docker/run` Bash script.
-    On Windows you **must** run `docker/run` with `MSYS_NO_PATHCONV=1` inside MSYS2 environment or it will simply not work, as it's a bash script.
+   This will tell Git Bash to correctly process absolute paths inside the `docker/run` Bash script.
+   On Windows you **must** run `docker/run` with `MSYS_NO_PATHCONV=1` inside MSYS2 environment or it will simply not work, as it's a bash script.
+
 6. To have hot module reloading properly working, you need to enable file watchers using docker-windows-volume-watcher Python package, like this:
 
-    ```bash
-    pip install docker-windows-volume-watcher
-    docker-volume-watcher
-    ```
+   ```bash
+   pip install docker-windows-volume-watcher
+   docker-volume-watcher
+   ```
 
-    Script can be started from any folder, it watches all currently running containers by default. Hot reloading will work *only* while this script is running.
-7. Add `local.cleverbuild.biz 127.0.0.1` to your HOSTS file.
+   Script can be started from any folder, it watches all currently running containers by default. Hot reloading will work _only_ while this script is running.
+
+7. Add `bigos.local 127.0.0.1` to your HOSTS file.
 
 It's possible to install everything inside the virtual machine, either in VirtualBox or in native Hyper-V hypervisor,
 but VirtualBox incurs enormous penalty on performance, and Hyper-V image coredumps randomly.

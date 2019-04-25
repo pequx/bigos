@@ -4,7 +4,7 @@ const SENTRY_URL = '';
 const envs = {
   local: {
     ENV: 'local',
-    API_BASE: 'http://local.cleverbuild.biz:8080'
+    API_BASE: 'http://bigos.local:8080'
   },
   dev: {
     ENV: 'development',
@@ -22,12 +22,12 @@ const envs = {
 };
 
 // Expected hosts:
-// local  :             local.cleverbuild.biz
+// local  :                       bigos.local
 // dev    :   <name>-dev-<random>.example.com
 // staging: <name>-stage-<random>.example.com
 // prod   :                       example.com
 
-const localHostnames = ['local.cleverbuild.biz', 'localhost', '127.0.0.1'];
+const localHostnames = ['bigos.local', 'localhost', '127.0.0.1'];
 
 const calculateConfig = () => {
   const { host, hostname, protocol } = window.location;

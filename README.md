@@ -42,6 +42,7 @@ Also, if you want to start, for instance a crypto-currency market or another Zal
 * [Docker Compose](https://docs.docker.com/compose) to run containers locally
   and during the build.
 * [Jenkins](https://jenkins.io) to test, build and deploy the application.
+* [Redis](https://redis.io/) for optimal session handling and cache.
 * [Kubernetes](https://kubernetes.io) to orchestrate the container deployment.
 * [PostgreSQL](https://www.postgresql.org/) and [MySQL](https://www.mysql.com/) as database engines.
 * [Knex.js](https://knexjs.org/) SQL query builder for Postgres, MSSQL, MySQL, MariaDB, SQLite3, Oracle, and Amazon Redshift designed to be flexible, portable, and fun to use.
@@ -63,7 +64,7 @@ This project is licensed under the MIT license, Copyright (c) 2019 github.com/pe
 
 * This project is experimental and shall not be used without a proper consideration for any production applications.
 * Sorry for long readme, here is some bigos:
-!["Bigos" by Mario Carvajal](https://upload.wikimedia.org/wikipedia/commons/d/d6/Bigos_polonia.jpg)
+  !["Bigos" by Mario Carvajal](https://upload.wikimedia.org/wikipedia/commons/d/d6/Bigos_polonia.jpg)
 
 # Documentation
 
@@ -125,8 +126,8 @@ risk of checking it into source control.
 $ docker/run
 ```
 
-That's it! Your application is available at http://local.cleverbuild.biz:8080
-(api) and http://local.cleverbuild.biz:3000 (React frontend). Both api and
+That's it! Your application is available at http://bigos.local:8080
+(api) and http://bigos.local:3000 (React frontend). Both api and
 frontend support hot reloading.
 
 > On first execution, Docker must download the base container images, which
