@@ -15,6 +15,11 @@ describe('App', () => {
     expect(await res.text()).toEqual('<p>Hello Boilerplate</p>');
   });
 
+  it('Timeline should return a JSON with status ok', async () => {
+      const res = await fetch('/timeline');
+      expect(res.status).toEqual(200);
+  });
+
   it('Healthz should return a JSON with status OK', async () => {
     const res = await fetch('/healthz');
     expect(res.status).toEqual(200);

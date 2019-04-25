@@ -2,7 +2,7 @@
 
 set -e
 
-COMPOSE_PROJECT_NAME=boilerplate
+COMPOSE_PROJECT_NAME=bigos
 
 # Linux fix
 CONFIG_FILE=docker-compose.yml
