@@ -2,35 +2,13 @@
 
 Containerized multi-functional infrastructure designed to provide consistent and scalable implementation of asynchronous back-end and front-end functionalities.
 
-And also, the whole setup for my personal web page:
+And also, the whole setup for my personal web page :)
 
 * Fast local application development, including: hot-reloading, local utilities, developer tools (linters, git hooks, etc.)
 * Additional features like: dependencies caching for faster builds, secure stores implementation, infrastructure components health-check and components linters.
 * Implements a solid workflow for building, testing and deploying applications.
 * Secure and complete authentication functionality (including 2FA with either SMS or apps like Google Authenticator).
 * Supports SASS/SCSS
-
-## Background
-
-I am switching from monolithic PHP-based engineering toward modern, more scalable and flexible ways of node.js and React.
-
-I researched a number of boilerplate widely available online.
-
-As my development skills evolved over e-commerce systems driven by Symfony framework, within them, I was missing a proper level of inheritance integration, service-oriented scalability, session storage and authentication handling, efficient dependency injection paradigms and secure containers with interchangeable transfer objects.
-
-Another noticeable issue was the lack of proper containerization. I spend many hours trying to recreate a Docker local and testing environment, or a Jenkins deploy pipelines, I knew from my projects.
-
-It is not trivial, and a pattern design mistake may have a severe consequence.
-
-Luckily, I found a very good boilerplate provided by NY-based company Clevertech (see [Clevertech](https://github.com/clevertech))
-
-### TLDR;
-
-To summarize, if you want to switch to node.js and you had previous experiences with high-availability backend infrastructures – it will definitely suit your needs.
-
-Furthermore, it will give you a total freedom of implementation – a plain and simple bootstrap classes, allowing you to extend your application as it evolves.
-
-Also, if you want to start, for instance a crypto-currency market or another Zalando-scale e-commerce project – it is definitely worth considering.
 
 ## Technologies
 

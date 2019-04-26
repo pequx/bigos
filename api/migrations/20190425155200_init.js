@@ -1,12 +1,11 @@
 const { dbSchema } = require('../src/constants');
-const { result } = require('../src/utils/dbInit');
 
 /**
  * Initial migration
  */
 exports.up = async knex => {
-  await knex.schema
-    .createTable(dbSchema.timeline.category.table, async table => {
+  return await knex.schema
+    .createTable(dbSchema.timeline.category.table, table => {
       /**
        * Create `timelineItemCategories`
        */
@@ -21,10 +20,8 @@ exports.up = async knex => {
       table.jsonb(column.description);
 
       table.timestamps(true, true);
-
-      await result({ values: Object.values(column) }).catch(error => console.log(error));
     })
-    .createTable(dbSchema.timeline.item.table, async table => {
+    .createTable(dbSchema.timeline.item.table, table => {
       /**
        * Create `timelineItems`
        */
@@ -42,10 +39,9 @@ exports.up = async knex => {
 
       table.timestamps(true, true);
 
-      await result({ values: Object.values(column) }).catch(error => console.log(error));
       //table.integer('user_id').notNullable().references('id').inTable('users').onDelete('cascade');
     })
-    .createTable(dbSchema.timeline.detail.table, async table => {
+    .createTable(dbSchema.timeline.detail.table, table => {
       /**
        * Create `timelineDetails`
        */
@@ -67,10 +63,8 @@ exports.up = async knex => {
       table.jsonb(column.region).notNullable();
 
       table.timestamps(true, true);
-
-      await result({ values: Object.values(column) }).catch(error => console.log(error));
     })
-    .createTable(dbSchema.blog.post.table, async table => {
+    .createTable(dbSchema.blog.post.table, table => {
       /**
        * Create `blogPosts`
        */
@@ -88,10 +82,7 @@ exports.up = async knex => {
       table.jsonb(column.content).notNullable();
 
       table.timestamps();
-
-      await result({ values: Object.values(column) }).catch(error => console.log(error));
-    })
-    .catch(error => console.log(error));
+    });
 };
 
 const { timeline } = dbSchema;
