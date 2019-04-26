@@ -7,9 +7,8 @@ const { LoremIpsumConfig } = require('../../configs');
 const { timeline } = dbSchema;
 const { table } = timeline.category;
 const { column } = timeline.category;
-const { NODE_ENV } = process.env;
 
-const local = NODE_ENV === 'local';
+const local = process.env.NODE_ENV === 'local';
 const lorem = new LoremIpsum(LoremIpsumConfig);
 
 /**
@@ -28,7 +27,7 @@ const value = current => {
         return true;
       case column.name:
         Object.values(locale).forEach(current => {
-          row[current] = `Cat ${count.category} ${lorem.generateSentences(1)}`;
+          row[current] = `Cat ${count.category} ${lorem.generateWords(3)}`;
         });
         return row;
       case column.description:

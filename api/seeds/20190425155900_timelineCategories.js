@@ -20,7 +20,7 @@ exports.seed = knex => {
           values =>
             local
               ? Object.values(values).forEach(value =>
-                  console.log(`Seeding ${JSON.stringify(value)}`),
+                  console.log(`Seeding category: ${JSON.stringify(value)}`),
                 )
               : null,
           error => {
