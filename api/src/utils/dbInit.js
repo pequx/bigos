@@ -1,6 +1,9 @@
+const Item = require('../../src/factories/timeline/item');
+
 const { dbSchema, locale } = require('../constants');
 
 const { category } = dbSchema.timeline;
+const { item } = dbSchema.timeline;
 const { column } = category;
 
 /**
@@ -8,6 +11,8 @@ const { column } = category;
  */
 exports.dbSeed = table => {
   switch (table) {
+    case item.table:
+      return new Item().get();
     case category.table:
       return [
         {

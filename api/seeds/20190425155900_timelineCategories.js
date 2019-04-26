@@ -5,7 +5,7 @@ const { category } = dbSchema.timeline;
 const { table } = category;
 
 /**
- * Seed with initial timeline items categories
+ * Seed with initial timeline categories
  */
 exports.seed = knex => {
   return knex(category.table)

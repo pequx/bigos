@@ -1,10 +1,4 @@
-const {
-  initResources,
-  fetch,
-  integration,
-  appUnit,
-  closeResources
-} = require('./utils');
+const { initResources, fetch, integration, appUnit, closeResources } = require('./utils');
 
 describe('App', () => {
   beforeAll(initResources);
@@ -16,8 +10,8 @@ describe('App', () => {
   });
 
   it('Timeline should return a JSON with status ok', async () => {
-      const res = await fetch('/timeline');
-      expect(res.status).toEqual(200);
+    const res = await fetch('/timeline');
+    expect(res.status).toEqual(200);
   });
 
   it('Healthz should return a JSON with status OK', async () => {

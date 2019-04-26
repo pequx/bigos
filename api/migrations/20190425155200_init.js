@@ -38,8 +38,6 @@ exports.up = async knex => {
       table.date(column.end);
 
       table.timestamps(true, true);
-
-      //table.integer('user_id').notNullable().references('id').inTable('users').onDelete('cascade');
     })
     .createTable(dbSchema.timeline.detail.table, table => {
       /**
@@ -81,7 +79,7 @@ exports.up = async knex => {
       table.jsonb(column.keywords).notNullable();
       table.jsonb(column.content).notNullable();
 
-      table.timestamps();
+      table.timestamps(true, true);
     });
 };
 
@@ -89,7 +87,7 @@ const { timeline } = dbSchema;
 
 exports.down = async (knex, Promise) => {
   knex.schema
-    .dropTable(timeline.category.tabl)
+    .dropTable(timeline.category.table)
     // .then(values => result(values), error => result(error))
     .dropTable(timeline.item.table)
     // .then(values => result(values), error => result(error))

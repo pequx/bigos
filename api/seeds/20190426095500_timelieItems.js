@@ -1,24 +1,11 @@
-const { Random } = require('random-js');
-const Item = require('../src/factories/timeline/item');
-
 const { dbSchema } = require('../src/constants');
+const { dbSeed } = require('../src/utils/dbInit');
 
 const { item } = dbSchema.timeline;
 const { table } = item;
 
-const seed = async () => {
-  const random = new Random();
-  const rows = [];
-
-  for (let i = 1; i < random.integer(6, 10); i++) {
-    const item = await new Item().get();
-    rows.push(item);
-  }
-  return rows;
-};
-
 /**
- * Seed with initial timeline items categories
+ * Seed with initial timeline items
  */
 exports.seed = knex => {
   return knex(item.table)
@@ -26,7 +13,7 @@ exports.seed = knex => {
     .then(() => {
       return knex(table)
         .returning(Object.values(item.column))
-        .insert(seed(table))
+        .insert(dbSeed(table))
         .then(
           values => Object.values(values).forEach(value => console.log(value)),
           error => {
