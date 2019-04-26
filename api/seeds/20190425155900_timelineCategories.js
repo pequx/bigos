@@ -4,6 +4,8 @@ const { dbSeed } = require('../src/utils/dbInit');
 const { category } = dbSchema.timeline;
 const { table } = category;
 
+const local = process.env.NODE_ENV === 'local';
+
 /**
  * Seed with initial timeline categories
  */
@@ -15,10 +17,15 @@ exports.seed = knex => {
         .returning(Object.values(category.column))
         .insert(dbSeed(table))
         .then(
-          values => Object.values(values).forEach(value => console.log(value)),
+          values =>
+            local
+              ? Object.values(values).forEach(value =>
+                  console.log(`Seeding ${JSON.stringify(value)}`),
+                )
+              : null,
           error => {
             throw error;
-          }
+          },
         );
     });
 };
