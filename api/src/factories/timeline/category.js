@@ -47,7 +47,10 @@ const value = current => {
  * Timeline cateogry entities factory.
  */
 module.exports = class Category {
-  constructor(...ids) {
+  /**
+   * @param {array} ids - ids of category etntities
+   */
+  constructor(ids) {
     this.categories = {
       ids: ids.length > 0 ? ids : false,
       rows: false,
@@ -58,6 +61,9 @@ module.exports = class Category {
     };
   }
 
+  /**
+   * Category entities gettter.
+   */
   async get() {
     if (await this._getCategories()) {
       return this.categories.rows;
@@ -68,22 +74,33 @@ module.exports = class Category {
   }
 
   /**
-   * Category entity getter.
+   * Category entities setter.
+   * @param {array} rows
+   * @private
+   */
+  _set(rows) {
+    if (rows.length > 0) {
+      this.categories.rows = rows;
+      local ? console.log(`Processed rows: ${JSON.stringify(this.categories.rows)}`) : null;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Category entities provider.
    * @private
    */
   async _getCategories() {
     const { ids } = this.categories;
+
     try {
       return ids
-        ? db(table)
+        ? await db(table)
             .select(Object.values(column))
-            .whereIn(column.id, ids ? await this._getAllCategoryIds() : ids)
+            .whereIn(column.id, ids === factory.all ? await this._getAllCategoryIds() : ids)
             .then(
-              rows => {
-                this.categories.rows = rows;
-                local ? console.log(`Processed rows: ${JSON.stringify(rows)}`) : null;
-                return this.categories.rows.length > 0 ? true : false;
-              },
+              rows => this._set(rows),
               error => {
                 throw error;
               },
@@ -96,7 +113,7 @@ module.exports = class Category {
   }
 
   /**
-   * Provides all timeline category ids.
+   * Active category ids provider.
    * @private
    */
   async _getAllCategoryIds() {

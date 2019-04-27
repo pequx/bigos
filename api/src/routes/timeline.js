@@ -5,11 +5,22 @@ const { factory } = require('../../src/constants');
 
 const Category = require('../../src/factories/timeline/category');
 
+/**
+ * @param {Object} api
+ */
 module.exports = api => {
-  api.use('/timeline', router);
+  api.use('/timeline/category', router);
 
-  router.get('/category/all', async (req, res) => {
-    const category = new Category(factory.all);
-    res.json(await category.get());
+  router.get('/all', (req, res) => {
+    const categories = new Category(factory.all).get();
+    const valid = categories && categories.length > 0;
+    res.json(valid ? categories : false);
+  });
+
+  router.get('/:ids', async (req, res) => {
+    const ids = req.params.ids.split(new RegExp(/\D/g)).map(Number);
+    const categories = await new Category(ids).get();
+    const valid = ids.length > 0 && categories && categories.length > 0;
+    res.json(valid ? categories : false);
   });
 };
