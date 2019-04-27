@@ -33,10 +33,10 @@ const templatesDir = join(__dirname, '../../email-templates');
 const languages = fs.readdirSync(templatesDir);
 
 const auth = new Core({
-  projectName: 'Boilerplate',
+  projectName: 'Bigos',
   db,
   email: new DefaultEmailService({
-    projectName: 'Boilerplate',
+    projectName: 'Bigos',
     confirmEmailURL: `${BASE_URL}/account/confirm-email`,
     requestResetPasswordURL: `${BASE_URL}/account/forgot-password`,
     resetPasswordURL: `${BASE_URL}/account/reset-password`,

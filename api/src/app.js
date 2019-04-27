@@ -26,6 +26,7 @@ require('./routes/index')(app);
 const api = express.Router();
 require('./routes/account')(api);
 require('./routes/products')(api);
+require('./routes/timeline')(api);
 
 api.use(apiErrorHandler);
 app.use('/api', api);

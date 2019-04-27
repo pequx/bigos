@@ -1,8 +1,8 @@
 {
   "name": "api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "Boilerplate API",
+  "description": "Bigos API",
   "author": "Clevertech <support@clevertech.biz>",
   "main": "src/index.js",
   "scripts": {
@@ -49,8 +49,10 @@
     "helmet": "^3.9.0",
     "jsonwebtoken": "^8.1.0",
     "knex": "^0.13.0",
+    "lorem-ipsum": "^2.0.1",
     "node-fetch": "^1.7.3",
     "pg": "^7.3.0",
+    "random-js": "^2.0.0",
     "raven": "^2.2.1",
     "useragent": "^2.3.0",
     "winston": "*"
