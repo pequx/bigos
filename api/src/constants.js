@@ -12,9 +12,9 @@ exports.dbSchema = {
         description: 'companyDescription',
         location: 'companyLocation',
         parent: 'companyParent',
-        hodling: 'companyHolding'
-      }
-    }
+        hodling: 'companyHolding',
+      },
+    },
   },
   blog: {
     post: {
@@ -26,9 +26,9 @@ exports.dbSchema = {
         image: 'postImage',
         description: 'postDescription',
         keywords: 'postKeywords',
-        content: 'postContent'
-      }
-    }
+        content: 'postContent',
+      },
+    },
   },
   timeline: {
     category: {
@@ -37,8 +37,8 @@ exports.dbSchema = {
         id: 'categoryId',
         active: 'categoryActive',
         name: 'categoryName',
-        description: 'categoryDescription'
-      }
+        description: 'categoryDescription',
+      },
     },
     item: {
       table: 'timelineItems',
@@ -48,8 +48,8 @@ exports.dbSchema = {
         category: 'itemCategoryId',
         content: 'itemContent',
         start: 'itemStartDate',
-        end: 'itemEndDate'
-      }
+        end: 'itemEndDate',
+      },
     },
     detail: {
       table: 'timelineDetails',
@@ -64,17 +64,17 @@ exports.dbSchema = {
         description: 'detailDescription',
         parent: 'detailParent',
         industry: 'detailIndustry',
-        region: 'detailRegion'
-      }
-    }
-  }
+        region: 'detailRegion',
+      },
+    },
+  },
 };
 
 /**
  * Placeholders for generating seed or empty objects from factories.
  */
 exports.placeholders = {
-  imageTimelineItem: 'http://placehold.jpg/125x50.png'
+  imageTimelineItem: 'http://placehold.jpg/125x50.png',
 };
 
 /**
@@ -82,5 +82,9 @@ exports.placeholders = {
  */
 exports.locale = {
   english: 'EN_EN',
-  german: 'DE_DE'
+  german: 'DE_DE',
+};
+
+exports.factory = {
+  all: 'all',
 };

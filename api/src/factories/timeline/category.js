@@ -1,7 +1,7 @@
 const { LoremIpsum } = require('lorem-ipsum');
 
 const { db } = require('../../db');
-const { dbSchema, locale } = require('../../../src/constants');
+const { dbSchema, locale, factory } = require('../../../src/constants');
 const { LoremIpsumConfig } = require('../../configs');
 
 const { timeline } = dbSchema;
@@ -58,26 +58,30 @@ module.exports = class Category {
     };
   }
 
-  get() {
-    return !this._getCategories()
-      ? this._getMocks() ? this.mocks.rows : false
-      : this.categories.rows;
+  async get() {
+    if (await this._getCategories()) {
+      return this.categories.rows;
+    }
+    if (this._getMocks()) {
+      return this.categories.mocks;
+    }
   }
 
   /**
    * Category entity getter.
    * @private
    */
-  _getCategories() {
+  async _getCategories() {
+    const { ids } = this.categories;
     try {
-      return this.categories.ids
+      return ids
         ? db(table)
             .select(Object.values(column))
-            .whereIn(column.id, this.category.id)
+            .whereIn(column.id, ids ? await this._getAllCategoryIds() : ids)
             .then(
               rows => {
                 this.categories.rows = rows;
-                local ? console.log(`Processed rows: ${rows}`) : null;
+                local ? console.log(`Processed rows: ${JSON.stringify(rows)}`) : null;
                 return this.categories.rows.length > 0 ? true : false;
               },
               error => {
@@ -92,32 +96,62 @@ module.exports = class Category {
   }
 
   /**
+   * Provides all timeline category ids.
+   * @private
+   */
+  async _getAllCategoryIds() {
+    const { ids } = this.categories;
+    try {
+      return ids[0] === factory.all
+        ? db(table)
+            .select(column.id)
+            .where(column.active, true)
+            .then(
+              rows => {
+                local ? console.log(`Processed ids: ${JSON.stringify(rows)}`) : null;
+                return rows.length > 0 ? Object.values(rows).map(row => row[column.id]) : false;
+              },
+              error => {
+                throw error;
+              },
+            )
+        : false;
+    } catch (error) {
+      console.error(`Category ids getter error: ${error}`);
+      return false;
+    }
+  }
+
+  /**
    * Genreate category mocks.
    * @private
    */
   _getMocks() {
-    console.log('be');
-    try {
-      this.mocks.rows = [];
-      for (let i = 0; i < this.mocks.count; i++) {
-        console.info(`Generating category mock #${i}`);
+    const { ids } = this.categories;
+    if (local && !ids) {
+      try {
+        this.mocks.rows = [];
+        for (let i = 0; i < this.mocks.count; i++) {
+          console.info(`Generating category mock #${i}`);
 
-        let row = {};
-        Object.values(column).forEach(current => {
-          if (current !== column.id) {
-            row[current] = value(current);
-          }
-        });
-        this.mocks.rows.push(row);
-        console.info(`Pushed row: ${JSON.stringify(row)}}`);
-        row = {};
-        console.info(`Purged`);
+          let row = {};
+          Object.values(column).forEach(current => {
+            if (current !== column.id) {
+              row[current] = value(current);
+            }
+          });
+          this.mocks.rows.push(row);
+          console.info(`Pushed row: ${JSON.stringify(row)}}`);
+          row = {};
+          console.info(`Purged`);
+        }
+
+        return this.mocks.rows.length > 0 ? true : false;
+      } catch (error) {
+        console.error(`Category mock generator error: ${error}`);
+        return false;
       }
-
-      return this.mocks.rows.length > 0 ? true : false;
-    } catch (error) {
-      console.error(`Category mock generator error: ${error}`);
-      return false;
     }
+    return false;
   }
 };

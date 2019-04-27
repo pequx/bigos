@@ -16,11 +16,11 @@ module.exports = class Item {
   constructor(...ids) {
     this.items = {
       ids: ids.length > 0 ? ids : false,
-      rows: false
+      rows: false,
     };
     this.mocks = {
       count: random.integer(6, 10),
-      rows: false
+      rows: false,
     };
   }
 
@@ -46,17 +46,17 @@ module.exports = class Item {
       return this.items.ids
         ? db(table)
             .select(Object.values(column))
-            .whereIn(column.id, this.ids)
+            .whereIn(column.id, this.items.ids)
             .then(
               rows => {
                 this.items.rows = rows;
                 return this.items.rows.length > 0 ? true : false;
               },
-              error => console.error(error)
+              error => console.error(error),
             )
         : false;
     } catch (error) {
-      return console.error(`error ${error}`);
+      console.error(`error ${error}`);
     }
   }
 
@@ -67,8 +67,10 @@ module.exports = class Item {
     this.mocks.rows = [];
     const image = JSON.stringify(
       Object.values(locale).map(locale => ({
-        [locale]: `<img src="${placeholders.imageTimelineItem}" alt="${lorem.generateSentences(1)}"`
-      }))
+        [locale]: `<img src="${placeholders.imageTimelineItem}" alt="${lorem.generateSentences(
+          1,
+        )}"`,
+      })),
     );
     const value = current => {
       console.log('switch current: ' + current);
