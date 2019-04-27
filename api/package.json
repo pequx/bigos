@@ -56,7 +56,7 @@
     "random-js": "^2.0.0",
     "raven": "^2.2.1",
     "useragent": "^2.3.0",
-    "winston": "*"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "better-npm-run": "^0.1.0",
