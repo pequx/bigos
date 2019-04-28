@@ -5,7 +5,7 @@ const {
   TwilioSMSService,
   JWT,
   KnexAdapter,
-  Validations
+  Validations,
 } = require('@clevertech.biz/auth-core');
 const fs = require('fs');
 const { join } = require('path');
@@ -24,7 +24,7 @@ const {
   BASE_URL,
   TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN,
-  TWILIO_NUMBER_FROM
+  TWILIO_NUMBER_FROM,
 } = process.env;
 
 const sms = new TwilioSMSService(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER_FROM);
@@ -42,8 +42,8 @@ const auth = new Core({
     resetPasswordURL: `${BASE_URL}/account/reset-password`,
     emailServiceConfig: {
       DEFAULT_FROM,
-      TEMPLATES_DIR: templatesDir
-    }
+      TEMPLATES_DIR: templatesDir,
+    },
   }),
   crypto: new Crypto(CRYPTO_KEY, CRYPTO_ALGORITHM),
   jwt: new JWT(JWT_ALGORITHM, JWT_SECRET, JWT_SECRET, {
@@ -51,7 +51,7 @@ const auth = new Core({
   }),
   validations: new Validations(['username', 'firstName', 'lastName'], true),
   sms,
-  numberOfRecoverCodes: 10
+  numberOfRecoverCodes: 10,
 });
 
 module.exports = { auth, languages };

@@ -7,8 +7,8 @@ const products = [
     price: 100,
     quantity: 1,
     description: 'Description Product A',
-    id: 123
-  }
+    id: 123,
+  },
 ];
 
 module.exports = app => {
@@ -16,7 +16,7 @@ module.exports = app => {
 
   router.get('/', (req, res) => {
     res.json({
-      records: products
+      records: products,
     });
   });
 };

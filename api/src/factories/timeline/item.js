@@ -2,7 +2,7 @@ const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 
 const { db } = require('../../db');
-const { dbSchema, locale, placeholders } = require('../../../src/constants');
+const { dbSchema, locale, placeholders, factory } = require('../../../src/constants');
 const { LoremIpsumConfig } = require('../../configs');
 
 const { timeline } = dbSchema;
@@ -12,10 +12,48 @@ const { column } = timeline.item;
 const random = new Random();
 const lorem = new LoremIpsum(LoremIpsumConfig);
 
+const local = process.env.NODE_ENV === 'local';
+
+/**
+ * Mock data values provider.
+ * @param {string} current - current column name
+ */
+const value = current => {
+  try {
+    console.info(`Generating value for: ${current}`);
+    switch (current) {
+      case column.active:
+        return true;
+      case column.category:
+        return random.integer(1, 2);
+      case column.content:
+        return JSON.stringify(
+          Object.values(locale).map(current => ({
+            [current]: `<img src="${placeholders.imageTimelineItem}" alt="${lorem.generateSentences(
+              1,
+            )}"`,
+          })),
+        );
+      case column.start:
+        return random.date(new Date('2000-09-13T03:24:17'), new Date(Date.now()));
+      default:
+        return null;
+    }
+  } catch (error) {
+    console.error(`Item mock values provider error: ${error}`);
+  }
+};
+
+/**
+ * Timeline item entities factory.
+ */
 module.exports = class Item {
-  constructor(...ids) {
+  /**
+   * @param {array|boolean} ids - ids of item entities
+   */
+  constructor(ids = false) {
     this.items = {
-      ids: ids.length > 0 ? ids : false,
+      ids: ids && ids.length > 0 ? ids : false,
       rows: false,
     };
     this.mocks = {
@@ -24,82 +62,114 @@ module.exports = class Item {
     };
   }
 
-  get() {
-    this._getItems();
-    if (this.items.rows) {
-      console.log('selecting items: ' + this.items);
-    } else {
-      this._getMocks();
+  /**
+   * Item entities provider.
+   */
+  async get() {
+    if (await this._getItems()) {
+      return this.items.rows;
     }
-    if (this.mocks.rows) {
-      console.log('mocks: ' + this.mocks.rows);
+    if (this._getMocks()) {
+      return this.mocks.rows;
     }
-    console.log(this.items.rows);
-    return this.items.rows.length ? this.items.rows : this.mocks.rows;
   }
 
   /**
+   * Collected item entities setter.
+   * @param {array} rows
    * @private
    */
-  _getItems() {
+  _set(rows) {
+    if (rows.length > 0) {
+      this.items.rows = rows;
+      if (local) {
+        console.log(`Set rows: ${JSON.stringify(this.items.rows)}`);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Items provider.
+   * @private
+   */
+  async _getItems() {
+    const { ids } = this.items;
     try {
-      return this.items.ids
-        ? db(table)
+      return ids
+        ? await db(table)
             .select(Object.values(column))
-            .whereIn(column.id, this.items.ids)
+            .whereIn(column.id, ids === factory.all ? await this._selectAllItems() : ids)
             .then(
-              rows => {
-                this.items.rows = rows;
-                return this.items.rows.length > 0 ? true : false;
+              rows => this._set(rows),
+              error => {
+                throw error;
               },
-              error => console.error(error),
             )
         : false;
     } catch (error) {
-      console.error(`error ${error}`);
+      console.error(`Items provider error: ${error}`);
+      return false;
     }
   }
 
   /**
+   * Active items selector.
+   * @private
+   */
+  async _selectAllItems() {
+    const { ids } = this.items;
+    try {
+      return ids === factory.all
+        ? db(table)
+            .select(column.id)
+            .where(column.active, true)
+            .then(
+              rows => {
+                if (local) {
+                  console.log(`Processed item ids: ${JSON.stringify(rows)}`);
+                }
+                return rows.length > 0 ? Object.values(rows).map(row => row[column.id]) : false;
+              },
+              error => {
+                throw error;
+              },
+            )
+        : false;
+    } catch (error) {
+      console.error(`Items selector error: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Item mocks provider.
    * @private
    */
   _getMocks() {
-    this.mocks.rows = [];
-    const image = JSON.stringify(
-      Object.values(locale).map(locale => ({
-        [locale]: `<img src="${placeholders.imageTimelineItem}" alt="${lorem.generateSentences(
-          1,
-        )}"`,
-      })),
-    );
-    const value = current => {
-      console.log('switch current: ' + current);
-      switch (current) {
-        case column.active:
-          return true;
-        case column.category:
-          return random.integer(1, 2);
-        case column.content:
-          return JSON.stringify(image);
-        case column.start:
-          return random.date(new Date('2000-09-13T03:24:17'), new Date(Date.now()));
-        default:
-          return null;
-      }
-    };
-
-    for (let i = 0; i < this.mocks.count; i++) {
-      console.log('mock nr.: ' + i);
-      const row = {};
-      Object.values(column).forEach(current => {
-        if (current !== column.id) {
-          row[current] = value(current);
-          console.log(row);
+    if (local && !this.items.ids) {
+      try {
+        this.mocks.rows = [];
+        for (let i = 0; i < this.mocks.count; i += 1) {
+          let row = {};
+          console.info(`Generating item mock #${i}`);
+          Object.values(column).forEach(current => {
+            if (current !== column.id) {
+              row[current] = value(current);
+            }
+          });
+          this.mocks.rows.push(row);
+          console.info(`Pushed row: ${JSON.stringify(row)}}`);
+          row = {};
+          console.log(`Row #${i} purged`);
         }
-      });
-      this.mocks.rows.push(row);
+        return this.mocks.rows.length > 0 ? true : false;
+      } catch (error) {
+        console.error(`Item mocks provider error: ${error}`);
+        return false;
+      }
     }
-
-    return this.mocks.rows.length > 0 ? true : false;
+    return false;
   }
 };

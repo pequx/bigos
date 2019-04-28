@@ -29,8 +29,4 @@ class JWT {
 
 exports.JWT = JWT;
 
-exports.sessionJWT = new JWT(
-  'HS256',
-  process.env.SESSION_SECRET,
-  process.env.SESSION_SECRET
-);
+exports.sessionJWT = new JWT('HS256', process.env.SESSION_SECRET, process.env.SESSION_SECRET);
