@@ -97,10 +97,11 @@ module.exports = class Item {
   async _getItems() {
     const { ids } = this.items;
     try {
-      return ids
+      return ids && ids.length > 0
         ? await db(table)
             .select(Object.values(column))
             .whereIn(column.id, ids === factory.all ? await this._selectAllItems() : ids)
+            .orderBy(column.start)
             .then(
               rows => this._set(rows),
               error => {
@@ -125,6 +126,7 @@ module.exports = class Item {
         ? db(table)
             .select(column.id)
             .where(column.active, true)
+            .orderBy(column.start)
             .then(
               rows => {
                 if (local) {

@@ -95,12 +95,12 @@ module.exports = class Category {
    */
   async _getCategories() {
     const { ids } = this.categories;
-
     try {
-      return ids
+      return ids && ids.length > 0
         ? await db(table)
             .select(Object.values(column))
             .whereIn(column.id, ids === factory.all ? await this._selectAllCategories() : ids)
+            .orderBy(column.id)
             .then(
               rows => this._set(rows),
               error => {
@@ -121,10 +121,11 @@ module.exports = class Category {
   async _selectAllCategories() {
     const { ids } = this.categories;
     try {
-      return ids[0] === factory.all
+      return ids && ids === factory.all
         ? db(table)
             .select(column.id)
             .where(column.active, true)
+            .orderBy(column.id)
             .then(
               rows => {
                 if (local) {
