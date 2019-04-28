@@ -11,7 +11,7 @@ module.exports = app => {
     // The key is the service name
     // The value is a function that tests the service and returns a Promise
     const services = {
-      db: () => db.raw('select 1')
+      db: () => db.raw('select 1'),
     };
     const results = {};
     let ok = true;
@@ -25,7 +25,7 @@ module.exports = app => {
           results[name] = err.message;
           ok = false;
         }
-      })
+      }),
     );
     res.status(ok ? 200 : 500).json(results);
   });

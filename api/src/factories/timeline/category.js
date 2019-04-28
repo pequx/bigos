@@ -12,7 +12,7 @@ const local = process.env.NODE_ENV === 'local';
 const lorem = new LoremIpsum(LoremIpsumConfig);
 
 /**
- * Generate value for given column.
+ * Mock data values provider.
  * @param {string} current - currnet column name
  */
 const value = current => {
@@ -39,7 +39,7 @@ const value = current => {
         return null;
     }
   } catch (error) {
-    console.error(`Category mock value generator error: ${error}`);
+    console.error(`Category mock values provider error: ${error}`);
   }
 };
 
@@ -48,11 +48,11 @@ const value = current => {
  */
 module.exports = class Category {
   /**
-   * @param {array} ids - ids of category etntities
+   * @param {array|boolean} ids - ids of category etntities
    */
-  constructor(ids) {
+  constructor(ids = false) {
     this.categories = {
-      ids: ids.length > 0 ? ids : false,
+      ids: ids && ids.length > 0 ? ids : false,
       rows: false,
     };
     this.mocks = {
@@ -62,43 +62,45 @@ module.exports = class Category {
   }
 
   /**
-   * Category entities gettter.
+   * Category entities provider.
    */
   async get() {
     if (await this._getCategories()) {
       return this.categories.rows;
     }
     if (this._getMocks()) {
-      return this.categories.mocks;
+      return this.mocks.rows;
     }
   }
 
   /**
-   * Category entities setter.
+   * Collected category entities setter.
    * @param {array} rows
    * @private
    */
   _set(rows) {
     if (rows.length > 0) {
       this.categories.rows = rows;
-      local ? console.log(`Processed rows: ${JSON.stringify(this.categories.rows)}`) : null;
+      if (local) {
+        console.log(`Set rows: ${JSON.stringify(this.categories.rows)}`);
+      }
       return true;
     }
     return false;
   }
 
   /**
-   * Category entities provider.
+   * Categories provider.
    * @private
    */
   async _getCategories() {
     const { ids } = this.categories;
-
     try {
-      return ids
+      return ids && ids.length > 0
         ? await db(table)
             .select(Object.values(column))
-            .whereIn(column.id, ids === factory.all ? await this._getAllCategoryIds() : ids)
+            .whereIn(column.id, ids === factory.all ? await this._selectAllCategories() : ids)
+            .orderBy(column.id)
             .then(
               rows => this._set(rows),
               error => {
@@ -107,25 +109,28 @@ module.exports = class Category {
             )
         : false;
     } catch (error) {
-      console.error(`Category getter error: ${error}`);
+      console.error(`Categories provider error: ${error}`);
       return false;
     }
   }
 
   /**
-   * Active category ids provider.
+   * Active categories selector.
    * @private
    */
-  async _getAllCategoryIds() {
+  async _selectAllCategories() {
     const { ids } = this.categories;
     try {
-      return ids[0] === factory.all
+      return ids && ids === factory.all
         ? db(table)
             .select(column.id)
             .where(column.active, true)
+            .orderBy(column.id)
             .then(
               rows => {
-                local ? console.log(`Processed ids: ${JSON.stringify(rows)}`) : null;
+                if (local) {
+                  console.log(`Processed category ids: ${JSON.stringify(rows)}`);
+                }
                 return rows.length > 0 ? Object.values(rows).map(row => row[column.id]) : false;
               },
               error => {
@@ -134,24 +139,22 @@ module.exports = class Category {
             )
         : false;
     } catch (error) {
-      console.error(`Category ids getter error: ${error}`);
+      console.error(`Category selector error: ${error}`);
       return false;
     }
   }
 
   /**
-   * Genreate category mocks.
+   * Category mocks provider.
    * @private
    */
   _getMocks() {
-    const { ids } = this.categories;
-    if (local && !ids) {
+    if (local && !this.categories.ids) {
       try {
         this.mocks.rows = [];
-        for (let i = 0; i < this.mocks.count; i++) {
-          console.info(`Generating category mock #${i}`);
-
+        for (let i = 0; i < this.mocks.count; i += 1) {
           let row = {};
+          console.info(`Generating category mock #${i}`);
           Object.values(column).forEach(current => {
             if (current !== column.id) {
               row[current] = value(current);
@@ -160,12 +163,11 @@ module.exports = class Category {
           this.mocks.rows.push(row);
           console.info(`Pushed row: ${JSON.stringify(row)}}`);
           row = {};
-          console.info(`Purged`);
+          console.log(`Row #${i} purged`);
         }
-
         return this.mocks.rows.length > 0 ? true : false;
       } catch (error) {
-        console.error(`Category mock generator error: ${error}`);
+        console.error(`Category mocks provider error: ${error}`);
         return false;
       }
     }

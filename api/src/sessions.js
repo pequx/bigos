@@ -13,11 +13,11 @@ module.exports = app => {
       store: new RedisStore({
         host: REDIS_HOST,
         port: +REDIS_PORT,
-        prefix: `${REDIS_PREFIX}:sess:`
+        prefix: `${REDIS_PREFIX}:sess:`,
       }),
       secret: SESSION_SECRET,
       resave: true,
-      saveUninitialized: true
-    })
+      saveUninitialized: true,
+    }),
   );
 };

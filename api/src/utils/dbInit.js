@@ -6,16 +6,30 @@ const { dbSchema } = require('../constants');
 const { category } = dbSchema.timeline;
 const { item } = dbSchema.timeline;
 
+const local = process.env.NODE_ENV === 'local';
+
 /**
  * Database seed provider
  */
-exports.dbSeed = table => {
+exports.dbSeed = async table => {
+  const info = (table, result) => {
+    console.log(`Seed for ${table} recived: ${JSON.stringify(result)}`);
+  };
+  let result = false;
   switch (table) {
     case category.table:
-      return new Category().get();
+      result = await new Category().get();
+      if (local) {
+        info(category.table, result);
+      }
+      return result;
     case item.table:
-      return new Item().get();
+      result = await new Item().get();
+      if (local) {
+        info(item.table, result);
+      }
+      return result;
     default:
-      return null;
+      return result;
   }
 };

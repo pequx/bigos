@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { factory } = require('../../src/constants');
+const { factory } = require('../../constants');
 
-const Category = require('../../src/factories/timeline/category');
+const Category = require('../../factories/timeline/category');
 
 /**
  * @param {Object} api
@@ -11,8 +11,8 @@ const Category = require('../../src/factories/timeline/category');
 module.exports = api => {
   api.use('/timeline/category', router);
 
-  router.get('/all', (req, res) => {
-    const categories = new Category(factory.all).get();
+  router.get('/all', async (req, res) => {
+    const categories = await new Category(factory.all).get();
     const valid = categories && categories.length > 0;
     res.json(valid ? categories : false);
   });
