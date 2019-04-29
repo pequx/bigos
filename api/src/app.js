@@ -46,4 +46,7 @@ require('./routes/timeline/item')(api);
 api.use(apiErrorHandler);
 app.use('/api', api);
 
+/**
+ * App
+ */
 module.exports = app;

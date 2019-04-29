@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 const { factory } = require('../../constants');
+const { dbSchema } = require('../../../src/constants');
+const { timeline } = dbSchema;
 
 const Item = require('../../factories/timeline/item');
+const { validator } = require('../../utils/validator');
 
 /**
  * @param {Object} api
@@ -11,16 +14,32 @@ const Item = require('../../factories/timeline/item');
 module.exports = api => {
   api.use('/timeline/item', router);
 
+  /**
+   * Provide all items.
+   */
   router.get('/all', async (req, res) => {
     const items = await new Item(factory.all).get();
-    const valid = items && items.length > 0;
-    res.json(valid ? items : false);
+    res.json(validator.timeline.item.response(items));
   });
 
+  /**
+   * Provide items over ids.
+   */
   router.get('/:ids', async (req, res) => {
-    const ids = req.params.ids.split(new RegExp(/\D/g)).map(Number);
-    const items = await new Item(ids).get();
-    const valid = ids.length > 0 && items && items.length > 0;
-    res.json(valid ? items : false);
+    let { ids } = req.params;
+    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
+    const items = ids.length > 0 ? await new Item(ids).get() : false;
+    res.json(validator.timeline.item.response(items));
+  });
+
+  /**
+   * Provide all items in category/ies.
+   */
+  router.get('/category/:ids', async (req, res) => {
+    const { column } = timeline.item;
+    let { ids } = req.params;
+    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
+    const items = ids.length > 0 ? await new Item(ids).get(column.category) : false;
+    res.json(validator.timeline.item.response(items));
   });
 };

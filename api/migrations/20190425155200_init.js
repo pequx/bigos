@@ -3,15 +3,15 @@ const { dbSchema } = require('../src/constants');
 /**
  * Initial migration
  */
-exports.up = async knex => {
-  return await knex.schema
+exports.up = knex => {
+  return knex.schema
     .createTable(dbSchema.timeline.category.table, table => {
       /**
        * Create `timelineItemCategories`
        */
       const { column } = dbSchema.timeline.category;
 
-      table.increments(column.id);
+      table.increments(column.id).primary();
       table
         .boolean(column.active)
         .notNullable()
@@ -27,12 +27,18 @@ exports.up = async knex => {
        */
       const { column } = dbSchema.timeline.item;
 
-      table.increments(column.id);
+      table.increments(column.id).primary();
       table
         .boolean(column.active)
         .notNullable()
         .defaultTo(false);
-      table.integer(column.category).notNullable();
+      // table.integer(column.category).notNullable();
+      table
+        .integer(column.category)
+        .references(dbSchema.timeline.item.column.id)
+        .inTable(dbSchema.timeline.item.table)
+        .notNull()
+        .onDelete('cascade');
       table.jsonb(column.content).notNullable();
       table.date(column.start).notNullable();
       table.date(column.end);
@@ -45,7 +51,7 @@ exports.up = async knex => {
        */
       const { column } = dbSchema.timeline.detail;
 
-      table.increments(column.id);
+      table.increments(column.id).primary();
       table
         .boolean(column.active)
         .notNullable()
@@ -68,7 +74,7 @@ exports.up = async knex => {
        */
       const { column } = dbSchema.blog.post;
 
-      table.increments(column.id);
+      table.increments(column.id).primary();
       table
         .boolean(column.active)
         .notNullable()
