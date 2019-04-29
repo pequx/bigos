@@ -55,13 +55,16 @@ describe('Timeline', () => {
     const { table } = timeline.item;
     const { column } = timeline.item;
     try {
+      /**
+       * @todo wrap it
+       */
       const random = new Random();
       const sample = random.integer(3, 5);
       const population = {
         multi: await db(table)
           .select(Object.values(column))
           .where(column.active, true)
-          .limit(sample + 1)
+          .limit(sample)
           .offset(0)
           .orderBy(column.start)
           .then(
@@ -94,10 +97,10 @@ describe('Timeline', () => {
           .catch(error => console.error(error)),
         category: await db(table)
           .select(Object.values(column))
-          .whereIn(column.category, 13)
-          .orderBy(column.category)
+          .where(column.active, true)
+          .orderBy(column.start)
           .then(
-            rows => _.uniq(rows),
+            rows => rows,
             error => {
               throw error;
             },
@@ -111,7 +114,7 @@ describe('Timeline', () => {
         multi: population.multi.map(row => row[column.id]).join(','),
         single: population.single[column.id],
         all: population.all.map(row => row[column.id]).join(','),
-        // category: population.category.map(row => row[column.category]).join(','),
+        category: _.uniq(population.category.map(row => row[column.category]).join(',')),
       };
       if (local) {
         console.log(`Collected following ids: ${JSON.stringify(ids)}`);
@@ -120,7 +123,7 @@ describe('Timeline', () => {
         multi: await fetch(`/api/timeline/item/${ids.multi}`),
         single: await fetch(`/api/timeline/item/${ids.single}`),
         all: await fetch(`/api/timeline/item/all`),
-        // category: await fetch(`/api/timeline/category/${ids.category}`),
+        category: await fetch(`/api/timeline/item/category/${ids.category}`),
       };
       Object.keys(res).forEach(async current => {
         const json = await res[current].json();

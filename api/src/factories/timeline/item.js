@@ -15,33 +15,26 @@ const random = new Random();
 const lorem = new LoremIpsum(LoremIpsumConfig);
 
 /**
- * Mock data values provider.
- * @param {string} current - current column name
+ * Item category provider.
  */
-const value = current => {
-  try {
-    console.info(`Generating value for: ${current}`);
-    switch (current) {
-      case column.active:
-        return true;
-      case column.category:
-        return random.integer(1, 2);
-      case column.content:
-        return JSON.stringify(
-          Object.values(locale).map(current => ({
-            [current]: `<img src="${placeholders.imageTimelineItem}" alt="${lorem.generateSentences(
-              1,
-            )}"`,
-          })),
-        );
-      case column.start:
-        return random.date(new Date('2000-09-13T03:24:17'), new Date(Date.now()));
-      default:
-        return null;
-    }
-  } catch (error) {
-    console.error(`Item mock values provider error: ${error}`);
-  }
+const category = async () => {
+  const { category } = timeline;
+  const { table } = category;
+  const { column } = category;
+  return await db(table)
+    .select(column.id)
+    .where(column.active, true)
+    .orderBy(column.id)
+    .then(
+      rows => _.map(rows, row => row[column.id]),
+      error => {
+        throw error;
+      },
+    )
+    .catch(error => {
+      console.error('Item mock values provider error', error);
+      return false;
+    });
 };
 
 /**
@@ -79,7 +72,7 @@ module.exports = class Item {
         const { ids, rows } = this.items;
         return validator.timeline.item.single(ids) ? rows[0] : rows;
       }
-      if (this._getMocks()) {
+      if (await this._getMocks()) {
         return this.mocks.rows;
       }
     } catch (error) {
@@ -151,22 +144,24 @@ module.exports = class Item {
    * Item mocks provider.
    * @private
    */
-  _getMocks() {
+  async _getMocks() {
     if (validator.env.local && !this.items.ids) {
       try {
         this.mocks.rows = [];
-        for (let i = 0; i < this.mocks.count; i += 1) {
-          let row = {};
-          console.info(`Generating item mock #${i}`);
-          Object.values(column).forEach(current => {
-            if (current !== column.id) {
-              row[current] = value(current);
-            }
+        while (this.mocks.count >= 1) {
+          this.mocks.rows.push({
+            [column.active]: true,
+            [column.category]: Math.trunc(random.sample(await category(), 1)),
+            [column.content]: JSON.stringify(
+              Object.values(locale).map(current => ({
+                [current]: `<img src="${
+                  placeholders.imageTimelineItem
+                }" alt="${lorem.generateSentences(1)}"`,
+              })),
+            ),
+            [column.start]: random.date(new Date('2000-09-13T03:24:17'), new Date(Date.now())),
           });
-          this.mocks.rows.push(row);
-          console.info(`Pushed row: ${JSON.stringify(row)}}`);
-          row = {};
-          console.log(`Row #${i} purged`);
+          this.mocks.count -= 1;
         }
         return this.mocks.rows.length > 0 ? true : false;
       } catch (error) {
