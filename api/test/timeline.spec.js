@@ -1,10 +1,12 @@
 const { Random } = require('random-js');
+const { LoremIpsum } = require('lorem-ipsum');
 const _ = require('lodash');
 
 const { initResources, fetch, closeResources } = require('./utils');
 
 const { db } = require('../src/db');
 const { dbSchema } = require('../src/constants');
+const { LoremIpsumConfig } = require('../src/configs');
 
 const { timeline } = dbSchema;
 
@@ -59,6 +61,7 @@ describe('Timeline', () => {
        * @todo wrap it
        */
       const random = new Random();
+      const lorem = new LoremIpsum(LoremIpsumConfig);
       const sample = random.integer(3, 5);
       const population = {
         multi: await db(table)
@@ -115,23 +118,70 @@ describe('Timeline', () => {
         single: population.single[column.id],
         all: population.all.map(row => row[column.id]).join(','),
         category: _.sortedUniq(population.category.map(row => row[column.category])).join(','),
+        invalid: [
+          0,
+          -1,
+          'all',
+          _.camelCase(lorem.generateSentences(1)),
+          Math.random()
+            .toString(36)
+            .substring(1),
+        ],
       };
       if (local) {
         console.log(`Collected following ids: ${JSON.stringify(ids)}`);
       }
-      const res = {
-        multi: await fetch(`/api/timeline/item/${ids.multi}`),
-        single: await fetch(`/api/timeline/item/${ids.single}`),
-        all: await fetch(`/api/timeline/item/all`),
-        category: await fetch(`/api/timeline/item/category/${ids.category}`),
+      const result = {
+        multi: {
+          valid: await fetch(`/api/timeline/item/${ids.multi}`),
+          invalid: await fetch(`/api/timeline/item/${ids.invalid.join(',')}`),
+        },
+        single: {
+          valid: await fetch(`/api/timeline/item/${ids.single}`),
+          invalid: await fetch(`/api/timeline/item/${random.sample(ids.invalid, 1)}`),
+        },
+        all: {
+          valid: await fetch(`/api/timeline/item/all`),
+          invalid: await fetch(`/api/timeline/item/all${random.sample(ids.invalid, 1)}`),
+        },
+        category: {
+          valid: await fetch(`/api/timeline/item/category/${ids.category}`),
+          invalid: await fetch(`/api/timeline/item/category/${random.sample(ids.invalid, 1)}`),
+        },
       };
-      Object.keys(res).forEach(async current => {
-        const json = await res[current].json();
-        if (local) {
-          console.log(`Testing response for ${JSON.stringify(current)}: ${JSON.stringify(json)}`);
-        }
-        expect(res[current].status).toEqual(200);
-        expect(JSON.stringify(json)).toEqual(JSON.stringify(population[current]));
+      await Object.keys(result).forEach(async responses => {
+        await Object.keys(result[responses]).forEach(async current => {
+          if (current === 'valid') {
+            const response = result[responses][current];
+            expect(response.status).toEqual(200);
+            expect(JSON.stringify(await response.json())).toEqual(
+              JSON.stringify(population[responses]),
+            );
+          } else {
+            const response = result[responses][current];
+            expect(response.status).toEqual(200);
+            expect(JSON.stringify(await response.json())).toEqual(JSON.stringify(false));
+          }
+          // if (current === 'single') {
+          // await Object.keys(ids.invalid).forEach(async variant => {
+          //   const response = result[responses][current][variant];
+          //   expect(response.status).toEqual(200);
+          //   expect(JSON.stringify(await response.json())).toEqual(JSON.stringify(false));
+          //   });
+          // } else {
+          // const response = result[responses][current];
+          // console.log('o kurwa ziom', response);
+          // expect(response.status).toEqual(200);
+          // expect(JSON.stringify(await response.json())).toEqual(JSON.stringify(false));
+          // }
+          // const json = await result[responses][current].json();
+          if (local) {
+            console.log(`Testing response for ${JSON.stringify(responses)}`);
+          }
+          // current === 'valid'
+          //   ? expect(JSON.stringify(json)).toEqual(JSON.stringify(population[current]))
+          //   : expect(JSON.stringify(json)).toEqual(JSON.stringify(false));
+        });
       });
     } catch (error) {
       console.error('Timeline item test error:', error);
