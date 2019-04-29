@@ -114,7 +114,7 @@ describe('Timeline', () => {
         multi: population.multi.map(row => row[column.id]).join(','),
         single: population.single[column.id],
         all: population.all.map(row => row[column.id]).join(','),
-        category: _.uniq(population.category.map(row => row[column.category]).join(',')),
+        category: _.sortedUniq(population.category.map(row => row[column.category])).join(','),
       };
       if (local) {
         console.log(`Collected following ids: ${JSON.stringify(ids)}`);

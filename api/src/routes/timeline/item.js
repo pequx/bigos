@@ -6,7 +6,7 @@ const { dbSchema } = require('../../../src/constants');
 const { timeline } = dbSchema;
 
 const Item = require('../../factories/timeline/item');
-const { validator } = require('../../../src/factories/validator');
+const { validator } = require('../../utils/validator');
 
 /**
  * @param {Object} api
@@ -26,7 +26,8 @@ module.exports = api => {
    * Provide items over ids.
    */
   router.get('/:ids', async (req, res) => {
-    const ids = req.params.ids.split(new RegExp(/\D/g)).map(Number);
+    let { ids } = req.params;
+    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
     const items = ids.length > 0 ? await new Item(ids).get() : false;
     res.json(validator.timeline.item.response(items));
   });
@@ -37,7 +38,7 @@ module.exports = api => {
   router.get('/category/:ids', async (req, res) => {
     const { column } = timeline.item;
     let { ids } = req.params;
-    ids = ids.split(new RegExp(/\D/g)).map(Number);
+    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
     const items = ids.length > 0 ? await new Item(ids).get(column.category) : false;
     res.json(validator.timeline.item.response(items));
   });

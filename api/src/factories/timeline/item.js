@@ -5,7 +5,7 @@ const { LoremIpsum } = require('lorem-ipsum');
 const { db } = require('../../db');
 const { dbSchema, locale, placeholders, factory } = require('../../../src/constants');
 const { LoremIpsumConfig } = require('../../configs');
-const { validator } = require('../../../src/factories/validator');
+const { validator } = require('../../utils/validator');
 
 const { timeline } = dbSchema;
 const { table } = timeline.item;

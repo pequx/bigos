@@ -14,10 +14,14 @@ exports.validator = {
        * @returns {Array|String|Boolean}
        */
       ids(collection) {
-        return _.isArray(collection) || _.isString(collection) ? collection : false;
+        const condition = {
+          0: _.isArray(collection) || _.isString(collection),
+          1: !_.includes(collection, 0),
+        };
+        return condition[0] && condition[1] ? collection : false;
       },
       /**
-       * Validates item singleton.
+       * Validates item single item.
        * @returns {Boolean}
        */
       single(collection) {
@@ -43,6 +47,13 @@ exports.validator = {
        */
       response(collection) {
         return _.isArray(collection) || _.isObjectLike(collection) ? collection : false;
+      },
+      /**
+       * Validates request params ids for item over category selector.
+       * @returns {Array|Object}
+       */
+      request(collection) {
+        return _.isNumber(collection) ? collection : false;
       },
     },
   },
