@@ -1,9 +1,11 @@
+const _ = require('lodash');
 const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 
 const { db } = require('../../db');
 const { dbSchema, locale, placeholders, factory } = require('../../../src/constants');
 const { LoremIpsumConfig } = require('../../configs');
+const { validator } = require('../../../src/factories/validator');
 
 const { timeline } = dbSchema;
 const { table } = timeline.item;
@@ -11,8 +13,6 @@ const { column } = timeline.item;
 
 const random = new Random();
 const lorem = new LoremIpsum(LoremIpsumConfig);
-
-const local = process.env.NODE_ENV === 'local';
 
 /**
  * Mock data values provider.
@@ -49,45 +49,43 @@ const value = current => {
  */
 module.exports = class Item {
   /**
-   * @param {array|boolean} ids - ids of item entities
+   * @param {Array|Boolean} ids - ids of item entities
    */
   constructor(ids = false) {
-    this.items = {
-      ids: ids && ids.length > 0 ? ids : false,
-      rows: false,
-    };
-    this.mocks = {
-      count: random.integer(6, 10),
-      rows: false,
-    };
+    try {
+      this.items = {
+        ids: validator.timeline.item.ids(ids),
+        rows: false,
+        criteria: false,
+      };
+      this.mocks = {
+        count: random.integer(6, 10),
+        rows: false,
+      };
+    } catch (error) {
+      console.log(`Item provider error`, error);
+      return false;
+    }
   }
 
   /**
    * Item entities provider.
+   * @param {String|Boolean} criteria - column name selector for ids provided in the constructor.
    */
-  async get() {
-    if (await this._getItems()) {
-      return this.items.rows;
-    }
-    if (this._getMocks()) {
-      return this.mocks.rows;
-    }
-  }
-
-  /**
-   * Collected item entities setter.
-   * @param {array} rows
-   * @private
-   */
-  _set(rows) {
-    if (rows.length > 0) {
-      this.items.rows = rows;
-      if (local) {
-        console.log(`Set rows: ${JSON.stringify(this.items.rows)}`);
+  async get(criteria) {
+    try {
+      this.items.criteria = validator.timeline.item.criteria(criteria);
+      if (await this._getItems()) {
+        const { ids, rows } = this.items;
+        return validator.timeline.item.single(ids) ? rows[0] : rows;
       }
-      return true;
+      if (this._getMocks()) {
+        return this.mocks.rows;
+      }
+    } catch (error) {
+      console.log(`Item provider error`, error);
+      return false;
     }
-    return false;
   }
 
   /**
@@ -95,12 +93,15 @@ module.exports = class Item {
    * @private
    */
   async _getItems() {
-    const { ids } = this.items;
+    const { criteria, ids } = this.items;
     try {
-      return ids && ids.length > 0
+      return ids
         ? await db(table)
             .select(Object.values(column))
-            .whereIn(column.id, ids === factory.all ? await this._selectAllItems() : ids)
+            .whereIn(
+              criteria ? criteria : column.id,
+              ids === factory.all ? await this._selectAllItems() : ids,
+            )
             .orderBy(column.start)
             .then(
               rows => this._set(rows),
@@ -108,7 +109,7 @@ module.exports = class Item {
                 throw error;
               },
             )
-        : false;
+        : ids;
     } catch (error) {
       console.error(`Items provider error: ${error}`);
       return false;
@@ -117,9 +118,10 @@ module.exports = class Item {
 
   /**
    * Active items selector.
+   * @param {Object|boolean} criteria
    * @private
    */
-  async _selectAllItems() {
+  async _selectAllItems(criteria = false) {
     const { ids } = this.items;
     try {
       return ids === factory.all
@@ -129,10 +131,10 @@ module.exports = class Item {
             .orderBy(column.start)
             .then(
               rows => {
-                if (local) {
+                if (validator.env.local) {
                   console.log(`Processed item ids: ${JSON.stringify(rows)}`);
                 }
-                return rows.length > 0 ? Object.values(rows).map(row => row[column.id]) : false;
+                return _.isArray(rows) ? Object.values(rows).map(row => row[column.id]) : false;
               },
               error => {
                 throw error;
@@ -150,7 +152,7 @@ module.exports = class Item {
    * @private
    */
   _getMocks() {
-    if (local && !this.items.ids) {
+    if (validator.env.local && !this.items.ids) {
       try {
         this.mocks.rows = [];
         for (let i = 0; i < this.mocks.count; i += 1) {
@@ -173,5 +175,18 @@ module.exports = class Item {
       }
     }
     return false;
+  }
+
+  /**
+   * Collected item entities setter.
+   * @param {array} rows
+   * @private
+   */
+  _set(rows) {
+    this.items.rows = validator.timeline.item.row(rows);
+    if (validator.env.local) {
+      console.log(`Setting rows: ${JSON.stringify(this.items.rows)}`);
+    }
+    return this.items.rows ? true : false;
   }
 };
