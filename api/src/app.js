@@ -1,4 +1,5 @@
 const awilix = require('awilix');
+const { Random } = require('random-js');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -6,11 +7,11 @@ const bodyParser = require('body-parser');
 
 const { apiErrorHandler } = require('./utils/errors');
 const { db } = require('../src/db');
-
-const Item = require('../src/factories/timeline/item');
-
 const { validator } = require('../src/utils/validator');
-const { dbSchema } = require('../src/constants');
+const { dbSchema, locale } = require('../src/constants');
+
+const Category = require('../src/factories/timeline/category');
+const Item = require('../src/factories/timeline/item');
 
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
@@ -32,11 +33,16 @@ container.register({
       .use(bodyParser.urlencoded({ extended: false }))
       .use(bodyParser.json()),
   ),
+  _: asValue(require('lodash')),
   api: asValue(express.Router().use(apiErrorHandler)),
+  Router: asValue(express.Router()),
   db: asValue(db),
   dbSchema: asValue(dbSchema),
-  FactoryTimelineItem: asValue(Item),
   validator: asValue(validator),
+  locale: asValue(locale),
+  FactoryTimelineItem: asValue(Item),
+  FactoryTimelineCategory: asValue(Category),
+  Random: asValue(new Random()),
 });
 
 const { app, api } = container.cradle;

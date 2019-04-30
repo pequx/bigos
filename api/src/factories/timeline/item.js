@@ -86,7 +86,7 @@ module.exports = class Item {
         const { validator } = this._container.cradle;
         this._items.criteria = validator.timeline.item.criteria(criteria);
         if (await this._getItems()) {
-          const { ids, rows } = this._item;
+          const { ids, rows } = this._items;
           return validator.timeline.item.single(ids) ? rows[0] : rows;
         }
         if (await this._getMocks()) {
@@ -94,7 +94,7 @@ module.exports = class Item {
         }
       }
     } catch (error) {
-      console.error(`Item provider error`, error);
+      console.error(`Item provider`, error);
       return false;
     }
   }

@@ -32,7 +32,6 @@ exports.up = knex => {
         .boolean(column.active)
         .notNullable()
         .defaultTo(false);
-      // table.integer(column.category).notNullable();
       table
         .integer(column.category)
         .references(dbSchema.timeline.item.column.id)
@@ -94,11 +93,7 @@ const { timeline } = dbSchema;
 exports.down = async (knex, Promise) => {
   knex.schema
     .dropTable(timeline.category.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(timeline.item.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(timeline.detail.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(dbSchema.blog.post.table);
-  // .then(values => result(values), error => result(error));
 };
