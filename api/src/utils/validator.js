@@ -13,10 +13,10 @@ exports.validator = {
   timeline: {
     item: {
       /**
-       * Validates item ids.
+       * Validates item id.
        * @returns {Array|String|Boolean}
        */
-      ids(collection) {
+      id(collection) {
         const condition = {
           0: _.isArray(collection) || _.isString(collection),
           1: !_.includes(collection, 0),
