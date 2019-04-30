@@ -2,7 +2,6 @@ const _ = require('lodash');
 const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 
-const { db } = require('../../db');
 const { dbSchema, locale, placeholders, factory } = require('../../../src/constants');
 const { LoremIpsumConfig } = require('../../configs');
 const { validator } = require('../../utils/validator');
@@ -21,7 +20,8 @@ const category = async () => {
   const { category } = timeline;
   const { table } = category;
   const { column } = category;
-  return await db(table)
+  return await this._container.cradle
+    .db(table)
     .select(column.id)
     .where(column.active, true)
     .orderBy(column.id)
@@ -44,8 +44,12 @@ module.exports = class Item {
   /**
    * @param {Array|Boolean} ids - ids of item entities
    */
-  constructor(ids = false) {
+  constructor(ids = false, container = false) {
     try {
+      /**
+       * @private
+       */
+      this._container = container;
       this.items = {
         ids: validator.timeline.item.ids(ids),
         rows: false,
@@ -89,7 +93,8 @@ module.exports = class Item {
     const { criteria, ids } = this.items;
     try {
       return ids
-        ? await db(table)
+        ? await this._container.cradle
+            .db(table)
             .select(Object.values(column))
             .whereIn(
               criteria ? criteria : column.id,
@@ -118,7 +123,8 @@ module.exports = class Item {
     const { ids } = this.items;
     try {
       return ids === factory.all
-        ? db(table)
+        ? this._container.cradle
+            .db(table)
             .select(column.id)
             .where(column.active, true)
             .orderBy(column.start)

@@ -70,6 +70,12 @@ exports.dbSchema = {
   },
 };
 
+exports.containerSchema = {
+  app: 'app',
+  api: 'api',
+  db: 'db',
+};
+
 /**
  * Placeholders for generating seed or empty objects from factories.
  */

@@ -4,6 +4,9 @@ exports.validator = {
   env: {
     local: process.env.NODE_ENV === 'local',
   },
+  container(collection) {
+    return collection.inspect().match(/AwilixContainer.*\d/g).length > 0 ? collection : false;
+  },
   /**
    * Timeline item validators.
    */

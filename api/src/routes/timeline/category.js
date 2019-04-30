@@ -9,8 +9,7 @@ const Category = require('../../factories/timeline/category');
  * @param {Object} container - awilix container
  */
 module.exports = container => {
-  const { api } = container.cradle;
-  api.use('/timeline/category', router);
+  container.resolve('api').use('/timeline/category', router);
 
   router.get('/all', async (req, res) => {
     const categories = await new Category(factory.all).get();
