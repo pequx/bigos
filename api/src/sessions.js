@@ -4,10 +4,12 @@
  */
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PREFIX, SESSION_SECRET } = process.env;
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
 
-module.exports = app => {
+/**
+ * @param {Object|False} container
+ */
+module.exports = (container = false) => {
+  const { app, session, RedisStore } = container.cradle;
   app.use(
     session({
       store: new RedisStore({

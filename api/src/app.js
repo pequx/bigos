@@ -43,14 +43,19 @@ container.register({
   FactoryTimelineItem: asValue(Item),
   FactoryTimelineCategory: asValue(Category),
   Random: asValue(new Random()),
+  session: asValue(require('express-session')),
 });
 
-const { app, api } = container.cradle;
+const { app, api, session } = container.cradle;
 
 /**
  * Session handling
+ * @todo solve this in a more elegant way
  */
-require('./sessions')(app);
+container.register({
+  RedisStore: asValue(require('connect-redis')(session)),
+});
+require('./sessions')(container);
 
 /**
  * Routes
