@@ -4,14 +4,12 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { LoremIpsum } = require('lorem-ipsum');
+const { LoremIpsumConfig } = require('../src/configs');
 
 const { apiErrorHandler } = require('./utils/errors');
 const { db } = require('../src/db');
-const { validator } = require('../src/utils/validator');
 const { dbSchema, locale } = require('../src/constants');
-
-const Category = require('../src/factories/timeline/category');
-const Item = require('../src/factories/timeline/item');
 
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
@@ -34,27 +32,27 @@ container.register({
       .use(bodyParser.json()),
   ),
   _: asValue(require('lodash')),
-  api: asValue(express.Router().use(apiErrorHandler)),
+  api: asValue(express.Router()),
   Router: asValue(express.Router()),
   db: asValue(db),
   dbSchema: asValue(dbSchema),
-  validator: asValue(validator),
   locale: asValue(locale),
-  FactoryTimelineItem: asValue(Item),
-  FactoryTimelineCategory: asValue(Category),
+  FactoryTimelineItem: asValue(require('../src/factories/timeline/item')),
+  FactoryTimelineCategory: asValue(require('../src/factories/timeline/category')),
   Random: asValue(new Random()),
+  LoremIpsum: asValue(new LoremIpsum(LoremIpsumConfig)),
   session: asValue(require('express-session')),
 });
 
 const { app, api, session } = container.cradle;
 
+container.register({ validator: asValue(require('../src/utils/validator')(container)) });
+
 /**
  * Session handling
  * @todo solve this in a more elegant way
  */
-container.register({
-  RedisStore: asValue(require('connect-redis')(session)),
-});
+container.register({ RedisStore: asValue(require('connect-redis')(session)) });
 require('./sessions')(container);
 
 /**
@@ -65,16 +63,17 @@ require('./routes/robots')(app);
 require('./routes/index')(app);
 
 /**
+ * API
+ */
+api.use(apiErrorHandler);
+app.use('/api', api);
+
+/**
  * API routes
  */
 require('./routes/account')(api);
 require('./routes/products')(api);
 require('./routes/timeline/category')(container);
 require('./routes/timeline/item')(container);
-
-/**
- * API
- */
-app.use('/api', api);
 
 module.exports = container;
