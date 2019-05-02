@@ -76,6 +76,13 @@ module.exports = (container = false) => {
               return condition[0] && condition[1] ? collection : false;
             },
             /**
+             * Validates is item a single item.
+             * @returns {Boolean}
+             */
+            single(collection) {
+              return _.isArray(collection) && collection.length == 1;
+            },
+            /**
              * Validates item selector criteria.
              * @returns {String|Boolean}
              */

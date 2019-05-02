@@ -5,25 +5,23 @@
 module.exports = (container = false) => {
   try {
     if (container instanceof Object) {
-      const { api, Router, FactoryTimelineCategory, validator } = container.cradle;
+      const { api, RouterTimelineCategory, FactoryTimelineCategory, validator } = container.cradle;
 
-      api.use('/timeline/category', Router);
+      api.use('/timeline/category', RouterTimelineCategory);
 
       /**
        * Provide all categories.
        */
-      Router.get('/all', async (req, res) => {
-        res.json(
-          validator.timeline.category.response(
-            await new FactoryTimelineCategory(container).select('all').get(),
-          ),
-        );
+      RouterTimelineCategory.get('/all', async (req, res) => {
+        const categories = await new FactoryTimelineCategory(container).select('all').get();
+
+        res.json(validator.timeline.category.response(categories));
       });
 
       /**
        * Provide categories over ids.
        */
-      Router.get('/:ids', async (req, res) => {
+      RouterTimelineCategory.get('/:ids', async (req, res) => {
         let { ids } = req.params;
         ids = validator.timeline.category.id(ids.split(new RegExp(/\D/g)).map(Number));
         const categories =

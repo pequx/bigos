@@ -25,22 +25,22 @@ exports.up = knex => {
       /**
        * Create `timelineItems`
        */
-      const { column } = dbSchema.timeline.item;
+      const { item, category } = dbSchema.timeline;
 
-      table.increments(column.id).primary();
+      table.increments(item.column.id).primary();
       table
-        .boolean(column.active)
+        .boolean(item.column.active)
         .notNullable()
         .defaultTo(false);
       table
-        .integer(column.category)
-        .references(dbSchema.timeline.item.column.id)
-        .inTable(dbSchema.timeline.item.table)
-        .notNull()
+        .integer(item.column.category)
+        .notNullable()
+        .references(category.column.id)
+        .inTable(category.table)
         .onDelete('cascade');
-      table.jsonb(column.content).notNullable();
-      table.date(column.start).notNullable();
-      table.date(column.end);
+      table.jsonb(item.column.content).notNullable();
+      table.date(item.column.start).notNullable();
+      table.date(item.column.end);
 
       table.timestamps(true, true);
     })

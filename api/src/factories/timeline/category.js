@@ -6,7 +6,7 @@ module.exports = class Category {
    * @param {Object|Boolean} - awilix container
    */
   constructor(container = false) {
-    this._container = false;
+    this._container = container;
     this._categories = {
       ids: false,
       rows: false,
@@ -15,17 +15,6 @@ module.exports = class Category {
       count: 6,
       rows: false,
     };
-
-    try {
-      if (container instanceof Object) {
-        this._container = container;
-        /**
-         * @todo: contaier check
-         */
-      }
-    } catch (error) {
-      console.error(`Timeline category container loading`, error);
-    }
   }
 
   /**
@@ -142,29 +131,42 @@ module.exports = class Category {
     try {
       if (this._container instanceof Object && this._categories.criteria === 'mock') {
         const { validator } = this._container.cradle;
-        const { dbSchema, locale, LoremIpsum } = this._container.cradle;
+        const { _, dbSchema, locale, LoremIpsum } = this._container.cradle;
         const { column } = dbSchema.timeline.category;
 
-        if (validator.env.local) {
+        if (validator.env.local && !this._categories.ids) {
           this._mocks.rows = [];
+          const value = current => {
+            let rows = {};
+
+            switch (current) {
+              case column.name: {
+                Object.values(locale).forEach(
+                  current => (rows[current] = LoremIpsum.generateSentences(1)),
+                );
+                return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+              }
+              case column.description: {
+                Object.values(locale).forEach(
+                  current => (rows[current] = LoremIpsum.generateSentences(3)),
+                );
+                return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+              }
+              default: {
+                return false;
+              }
+            }
+          };
 
           while (this._mocks.count >= 1) {
             this._mocks.rows.push({
               [column.active]: true,
-              [column.name]: JSON.stringify(
-                Object.values(locale).map(current => ({
-                  [current]: LoremIpsum.generateSentences(1),
-                })),
-              ),
-              [column.description]: JSON.stringify(
-                Object.values(locale).map(current => ({
-                  [current]: LoremIpsum.generateSentences(3),
-                })),
-              ),
+              [column.name]: value(column.name),
+              [column.description]: value(column.description),
             });
             this._mocks.count -= 1;
           }
-          return this._mocks.rows.length > 0 ? true : false;
+          return _.size(this._mocks.rows) > 0 ? true : false;
         }
       }
     } catch (error) {
@@ -183,10 +185,11 @@ module.exports = class Category {
       if (this._container instanceof Object) {
         const { validator } = this._container.cradle;
         this._categories.rows = validator.timeline.category.row(rows);
+
         if (validator.env.local) {
-          console.log('Setting timeline category rows'), JSON.stringify(this._categories.rows);
+          console.log('Setting timeline category rows', JSON.stringify(this._categories.rows));
         }
-        this._categories.rows ? true : false;
+        return this._categories.rows ? true : false;
       }
     } catch (error) {
       console.error('Timeline category entity setter', error);

@@ -37,7 +37,7 @@ module.exports = class Item {
    * @param {Object|Boolean} - awilix container
    */
   constructor(container = false) {
-    this._container = false;
+    this._container = container;
     this._items = {
       ids: false,
       rows: false,
@@ -47,17 +47,6 @@ module.exports = class Item {
       count: 10,
       rows: false,
     };
-
-    try {
-      if (container instanceof Object) {
-        this._container = container;
-        /**
-         * @todo: contaier check
-         */
-      }
-    } catch (error) {
-      console.error('Timeline item container loading', error);
-    }
   }
 
   /**
@@ -88,7 +77,7 @@ module.exports = class Item {
         this._items.criteria = validator.timeline.item.criteria(criteria);
 
         if (await this._getItems()) {
-          const { ids, rows } = this._item;
+          const { ids, rows } = this._items;
           return validator.timeline.item.single(ids) ? rows[0] : rows;
         }
         if (await this._getMocks()) {
@@ -177,28 +166,31 @@ module.exports = class Item {
     try {
       if (this._container instanceof Object && this._items.criteria === 'mock') {
         const { validator } = this._container.cradle;
-        const { dbSchema, locale, placeholders, Random, LoremIpsum } = this._container.cradle;
+        const { _, dbSchema, locale, placeholders, Random, LoremIpsum } = this._container.cradle;
         const { column } = dbSchema.timeline.item;
 
         if (validator.env.local && !this._items.ids) {
           this._mocks.rows = [];
+          const content = placeholder => {
+            let rows = {};
+            const alt = LoremIpsum.generateSentences(1);
+
+            Object.values(locale).forEach(
+              current => (rows[current] = `<img src="${placeholder}" alt="${alt}"`),
+            );
+            return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+          };
 
           while (this._mocks.count >= 1) {
             this._mocks.rows.push({
               [column.active]: true,
               [column.category]: Math.trunc(Random.sample(await category(this._container), 1)),
-              [column.content]: JSON.stringify(
-                Object.values(locale).map(current => ({
-                  [current]: `<img src="${
-                    placeholders.imageTimelineItem
-                  }" alt="${LoremIpsum.generateSentences(1)}"`,
-                })),
-              ),
+              [column.content]: content(placeholders.imageTimelineItem),
               [column.start]: Random.date(new Date('2000-09-13T03:24:17'), new Date(Date.now())),
             });
             this._mocks.count -= 1;
           }
-          return this._mocks.rows.length > 0 ? true : false;
+          return _.size(this._mocks.rows) > 0 ? true : false;
         }
       }
     } catch (error) {
@@ -217,8 +209,9 @@ module.exports = class Item {
       if (this._container instanceof Object) {
         const { validator } = this._container.cradle;
         this._items.rows = validator.timeline.item.row(rows);
+
         if (validator.env.local) {
-          console.log('Setting timeline item rows'), JSON.stringify(this._items.rows);
+          console.log('Setting timeline item rows', JSON.stringify(this._items.rows));
         }
         return this._items.rows ? true : false;
       }

@@ -1,12 +1,11 @@
 const awilix = require('awilix');
-const { Random } = require('random-js');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 const { LoremIpsumConfig } = require('../src/configs');
-
 const { apiErrorHandler } = require('./utils/errors');
 const { db } = require('../src/db');
 const { dbSchema, locale } = require('../src/constants');
@@ -33,15 +32,16 @@ container.register({
   ),
   _: asValue(require('lodash')),
   api: asValue(express.Router()),
-  Router: asValue(express.Router()),
   db: asValue(db),
   dbSchema: asValue(dbSchema),
   locale: asValue(locale),
-  FactoryTimelineItem: asValue(require('../src/factories/timeline/item')),
+  RouterTimelineCategory: asValue(express.Router()),
+  RouterTimelineItem: asValue(express.Router()),
   FactoryTimelineCategory: asValue(require('../src/factories/timeline/category')),
+  FactoryTimelineItem: asValue(require('../src/factories/timeline/item')),
+  session: asValue(require('express-session')),
   Random: asValue(new Random()),
   LoremIpsum: asValue(new LoremIpsum(LoremIpsumConfig)),
-  session: asValue(require('express-session')),
 });
 
 const { app, api, session } = container.cradle;
