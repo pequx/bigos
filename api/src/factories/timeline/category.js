@@ -1,90 +1,59 @@
-const { LoremIpsum } = require('lorem-ipsum');
-
-const { db } = require('../../db');
-const { dbSchema, locale, factory } = require('../../../src/constants');
-const { LoremIpsumConfig } = require('../../configs');
-
-const { timeline } = dbSchema;
-const { table } = timeline.category;
-const { column } = timeline.category;
-
-const local = process.env.NODE_ENV === 'local';
-const lorem = new LoremIpsum(LoremIpsumConfig);
-
-/**
- * Mock data values provider.
- * @param {string} current - currnet column name
- */
-const value = current => {
-  try {
-    console.info(`Generating value for: ${current}`);
-    const count = {
-      category: 1,
-    };
-    const row = {};
-    switch (current) {
-      case column.active:
-        return true;
-      case column.name:
-        Object.values(locale).forEach(current => {
-          row[current] = `Cat ${count.category} ${lorem.generateWords(3)}`;
-        });
-        return row;
-      case column.description:
-        Object.values(locale).forEach(current => {
-          row[current] = lorem.generateSentences(2);
-        });
-        return row;
-      default:
-        return null;
-    }
-  } catch (error) {
-    console.error(`Category mock values provider error: ${error}`);
-  }
-};
-
 /**
  * Timeline cateogry entities factory.
  */
 module.exports = class Category {
   /**
-   * @param {array|boolean} ids - ids of category etntities
+   * @param {Object|Boolean} - awilix container
    */
-  constructor(ids = false) {
-    this.categories = {
-      ids: ids && ids.length > 0 ? ids : false,
+  constructor(container = false) {
+    this._container = container;
+    this._categories = {
+      ids: false,
       rows: false,
     };
-    this.mocks = {
+    this._mocks = {
       count: 6,
       rows: false,
     };
   }
 
   /**
-   * Category entities provider.
+   * Items over ids selector.
+   * @param {Array|Boolean} - selected item ids
    */
-  async get() {
-    if (await this._getCategories()) {
-      return this.categories.rows;
+  select(ids = false) {
+    try {
+      if (this._container instanceof Object) {
+        const { validator } = this._container.cradle;
+
+        this._categories.ids = validator.timeline.category.id(ids);
+      }
+    } catch (error) {
+      console.error(`Category ids selector`, error);
     }
-    if (this._getMocks()) {
-      return this.mocks.rows;
-    }
+    return this;
   }
 
   /**
-   * Collected category entities setter.
-   * @param {array} rows
-   * @private
+   * Category entities provider.
+   * @param {String|Boolean} criteria - column name selector or other type criteria
    */
-  _set(rows) {
-    if (rows.length > 0) {
-      this.categories.rows = rows;
-      if (local) {
-        console.log(`Set rows: ${JSON.stringify(this.categories.rows)}`);
+  async get(criteria = false) {
+    try {
+      if (this._container instanceof Object) {
+        const { validator } = this._container.cradle;
+        this._categories.criteria = validator.timeline.category.criteria(criteria);
+
+        if (await this._getCategories()) {
+          const { ids, rows } = this._categories;
+          return validator.timeline.category.single(ids) ? rows[0] : rows;
+        }
+        if (await this._getMocks()) {
+          return this._mocks.rows;
+        }
       }
-      return true;
+    } catch (error) {
+      console.error(`Category provider`, error);
     }
     return false;
   }
@@ -94,24 +63,29 @@ module.exports = class Category {
    * @private
    */
   async _getCategories() {
-    const { ids } = this.categories;
     try {
-      return ids && ids.length > 0
-        ? await db(table)
-            .select(Object.values(column))
-            .whereIn(column.id, ids === factory.all ? await this._selectAllCategories() : ids)
-            .orderBy(column.id)
-            .then(
-              rows => this._set(rows),
-              error => {
-                throw error;
-              },
-            )
-        : false;
+      if (this._container instanceof Object && this._categories.criteria !== 'mock') {
+        const { ids } = this._categories;
+        const { db, dbSchema } = this._container.cradle;
+        const { table, column } = dbSchema.timeline.category;
+
+        return ids
+          ? await db(table)
+              .select(Object.values(column))
+              .whereIn(column.id, ids === 'all' ? await this._selectAllCategories() : ids)
+              .orderBy(column.id)
+              .then(
+                rows => (this._set(rows) ? true : false),
+                error => {
+                  throw error;
+                },
+              )
+          : false;
+      }
     } catch (error) {
-      console.error(`Categories provider error: ${error}`);
-      return false;
+      console.error('Categories provider', error);
     }
+    return false;
   }
 
   /**
@@ -119,57 +93,106 @@ module.exports = class Category {
    * @private
    */
   async _selectAllCategories() {
-    const { ids } = this.categories;
     try {
-      return ids && ids === factory.all
-        ? db(table)
-            .select(column.id)
-            .where(column.active, true)
-            .orderBy(column.id)
-            .then(
-              rows => {
-                if (local) {
-                  console.log(`Processed category ids: ${JSON.stringify(rows)}`);
-                }
-                return rows.length > 0 ? Object.values(rows).map(row => row[column.id]) : false;
-              },
-              error => {
-                throw error;
-              },
-            )
-        : false;
+      if (this._container instanceof Object) {
+        const { ids } = this._categories;
+        const { _, db, dbSchema, validator } = this._container.cradle;
+        const { table, column } = dbSchema.timeline.category;
+
+        return ids === 'all'
+          ? db(table)
+              .select(column.id)
+              .where(column.active, true)
+              .orderBy(column.id)
+              .then(
+                rows => {
+                  if (validator.env.local) {
+                    console.log('Selected category ids', rows);
+                  }
+                  return _.isArray(rows) ? Object.values(rows).map(row => row[column.id]) : false;
+                },
+                error => {
+                  throw error;
+                },
+              )
+          : false;
+      }
     } catch (error) {
-      console.error(`Category selector error: ${error}`);
-      return false;
+      console.error('Category selector', error);
     }
+    return false;
   }
 
-  /**
+  /**w
    * Category mocks provider.
    * @private
    */
   _getMocks() {
-    if (local && !this.categories.ids) {
-      try {
-        this.mocks.rows = [];
-        for (let i = 0; i < this.mocks.count; i += 1) {
-          let row = {};
-          console.info(`Generating category mock #${i}`);
-          Object.values(column).forEach(current => {
-            if (current !== column.id) {
-              row[current] = value(current);
+    try {
+      if (this._container instanceof Object && this._categories.criteria === 'mock') {
+        const { validator } = this._container.cradle;
+        const { _, dbSchema, locale, LoremIpsum } = this._container.cradle;
+        const { column } = dbSchema.timeline.category;
+
+        if (validator.env.local && !this._categories.ids) {
+          this._mocks.rows = [];
+          const value = current => {
+            let rows = {};
+
+            switch (current) {
+              case column.name: {
+                Object.values(locale).forEach(
+                  current => (rows[current] = LoremIpsum.generateSentences(1)),
+                );
+                return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+              }
+              case column.description: {
+                Object.values(locale).forEach(
+                  current => (rows[current] = LoremIpsum.generateSentences(3)),
+                );
+                return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+              }
+              default: {
+                return false;
+              }
             }
-          });
-          this.mocks.rows.push(row);
-          console.info(`Pushed row: ${JSON.stringify(row)}}`);
-          row = {};
-          console.log(`Row #${i} purged`);
+          };
+
+          while (this._mocks.count >= 1) {
+            this._mocks.rows.push({
+              [column.active]: true,
+              [column.name]: value(column.name),
+              [column.description]: value(column.description),
+            });
+            this._mocks.count -= 1;
+          }
+          return _.size(this._mocks.rows) > 0 ? true : false;
         }
-        return this.mocks.rows.length > 0 ? true : false;
-      } catch (error) {
-        console.error(`Category mocks provider error: ${error}`);
-        return false;
       }
+    } catch (error) {
+      console.error('Category mocks provider', error);
+    }
+    return false;
+  }
+
+  /**
+   * Collected category entities setter.
+   * @param {array} rows
+   * @private
+   */
+  _set(rows) {
+    try {
+      if (this._container instanceof Object) {
+        const { validator } = this._container.cradle;
+        this._categories.rows = validator.timeline.category.row(rows);
+
+        if (validator.env.local) {
+          console.log('Setting timeline category rows', JSON.stringify(this._categories.rows));
+        }
+        return this._categories.rows ? true : false;
+      }
+    } catch (error) {
+      console.error('Timeline category entity setter', error);
     }
     return false;
   }

@@ -176,7 +176,7 @@ describe('Timeline', () => {
           // }
           // const json = await result[responses][current].json();
           if (local) {
-            console.log(`Testing response for ${JSON.stringify(responses)}`);
+            console.log(`Testing response for ${JSON.stringify(responses, current)}`);
           }
           // current === 'valid'
           //   ? expect(JSON.stringify(json)).toEqual(JSON.stringify(population[current]))
@@ -184,7 +184,7 @@ describe('Timeline', () => {
         });
       });
     } catch (error) {
-      console.error('Timeline item test error:', error);
+      console.error('Timeline item test', error);
     }
   });
   afterAll(closeResources);

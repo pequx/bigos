@@ -1,45 +1,54 @@
-const express = require('express');
-const router = express.Router();
-
-const { factory } = require('../../constants');
-const { dbSchema } = require('../../../src/constants');
-const { timeline } = dbSchema;
-
-const Item = require('../../factories/timeline/item');
-const { validator } = require('../../utils/validator');
-
 /**
- * @param {Object} api
+ * Timeline item reouter.
+ * @param {Object|Boolean} container - the awilix container
  */
-module.exports = api => {
-  api.use('/timeline/item', router);
+module.exports = (container = false) => {
+  try {
+    if (container instanceof Object) {
+      const { api, RouterTimelineItem, FactoryTimelineItem, validator } = container.cradle;
 
-  /**
-   * Provide all items.
-   */
-  router.get('/all', async (req, res) => {
-    const items = await new Item(factory.all).get();
-    res.json(validator.timeline.item.response(items));
-  });
+      api.use('/timeline/item', RouterTimelineItem);
 
-  /**
-   * Provide items over ids.
-   */
-  router.get('/:ids', async (req, res) => {
-    let { ids } = req.params;
-    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
-    const items = ids.length > 0 ? await new Item(ids).get() : false;
-    res.json(validator.timeline.item.response(items));
-  });
+      /**
+       * Provide all items.
+       */
+      RouterTimelineItem.get('/all', async (req, res) => {
+        const items = await new FactoryTimelineItem(container).select('all').get();
 
-  /**
-   * Provide all items in category/ies.
-   */
-  router.get('/category/:ids', async (req, res) => {
-    const { column } = timeline.item;
-    let { ids } = req.params;
-    ids = validator.timeline.item.ids(ids.split(new RegExp(/\D/g)).map(Number));
-    const items = ids.length > 0 ? await new Item(ids).get(column.category) : false;
-    res.json(validator.timeline.item.response(items));
-  });
+        res.json(validator.timeline.item.response(items));
+      });
+
+      /**
+       * Provide items over ids.
+       */
+      RouterTimelineItem.get('/:ids', async (req, res) => {
+        let { ids } = req.params;
+        ids = validator.timeline.item.id(ids.split(new RegExp(/\D/g)).map(Number));
+        const items =
+          ids.length > 0 ? await new FactoryTimelineItem(container).select(ids).get() : false;
+
+        res.json(validator.timeline.item.response(items));
+      });
+
+      /**
+       * Provide all items in category/ies.
+       */
+      RouterTimelineItem.get('/category/:ids', async (req, res) => {
+        let { ids } = req.params;
+        const { dbSchema } = container.cradle;
+        const { column } = dbSchema.timeline.item;
+        ids = validator.timeline.item.id(ids.split(new RegExp(/\D/g)).map(Number));
+        const items =
+          ids.length > 0
+            ? await new FactoryTimelineItem(container).select(ids).get(column.category)
+            : false;
+
+        res.json(validator.timeline.item.response(items));
+      });
+    } else {
+      throw new Error('Container invalid');
+    }
+  } catch (error) {
+    console.error('Timeline item router', error);
+  }
 };

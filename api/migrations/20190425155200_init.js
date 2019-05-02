@@ -25,23 +25,22 @@ exports.up = knex => {
       /**
        * Create `timelineItems`
        */
-      const { column } = dbSchema.timeline.item;
+      const { item, category } = dbSchema.timeline;
 
-      table.increments(column.id).primary();
+      table.increments(item.column.id).primary();
       table
-        .boolean(column.active)
+        .boolean(item.column.active)
         .notNullable()
         .defaultTo(false);
-      // table.integer(column.category).notNullable();
       table
-        .integer(column.category)
-        .references(dbSchema.timeline.item.column.id)
-        .inTable(dbSchema.timeline.item.table)
-        .notNull()
+        .integer(item.column.category)
+        .notNullable()
+        .references(category.column.id)
+        .inTable(category.table)
         .onDelete('cascade');
-      table.jsonb(column.content).notNullable();
-      table.date(column.start).notNullable();
-      table.date(column.end);
+      table.jsonb(item.column.content).notNullable();
+      table.date(item.column.start).notNullable();
+      table.date(item.column.end);
 
       table.timestamps(true, true);
     })
@@ -94,11 +93,7 @@ const { timeline } = dbSchema;
 exports.down = async (knex, Promise) => {
   knex.schema
     .dropTable(timeline.category.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(timeline.item.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(timeline.detail.table)
-    // .then(values => result(values), error => result(error))
     .dropTable(dbSchema.blog.post.table);
-  // .then(values => result(values), error => result(error));
 };
