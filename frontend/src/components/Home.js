@@ -1,21 +1,35 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 
-const propTypes = {};
+import { withStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
+const styles = theme => ({
+  root: {
+    flexGrow: 1
+  },
+  paper: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+    color: theme.palette.text.secondary
+  }
+});
 class Home extends Component {
   render() {
+    const { classes } = this.props;
+
     return (
-      <section className="hero is-medium is-primary is-bold">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">Welcome to Clevertech's Boilerplate</h1>
-            <p className="subtitle">
-              Everything you need to <strong>create an awesome</strong> project
-            </p>
-          </div>
-        </div>
-      </section>
+      <Grid container spacing={24}>
+        <Helmet>
+          <title>Home</title>
+        </Helmet>
+        <Grid item xs={10}>
+          <Paper className={classes.paper}>Lorem impsum dolor sit</Paper>
+        </Grid>
+      </Grid>
     );
   }
 }
@@ -27,8 +41,13 @@ const mapDispatchToProps = dispatch => {
   return {};
 };
 
-Home.propTypes = propTypes;
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Home);
+Home.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export default withStyles(styles)(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(Home)
+);
