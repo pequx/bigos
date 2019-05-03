@@ -6,6 +6,7 @@ import Products from './components/products/Products';
 import Home from './components/Home';
 import EnsureAuthenticated from './components/EnsureAuthenticated';
 import accountRoutes from './components/account/routes';
+import timelineRoutes from './components/timeline/routes';
 
 import NoMatch from './components/NoMatch';
 
@@ -17,6 +18,7 @@ export default () => (
       <Switch>
         <Route path="/" component={Home} exact />
         <Route path="/account" component={accountRoutes} />
+        <Route path="/timeline" component={timelineRoutes} />
         <EnsureAuthenticated>
           <Route path="/products" component={Products} />
         </EnsureAuthenticated>
