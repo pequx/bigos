@@ -63,3 +63,7 @@ Vagrantfile
 
 # Files genreated by create-boilerplate-app
 helm-*.yml
+
+# IDEs
+.vscode/
+.idea/

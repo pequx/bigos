@@ -1,9 +1,9 @@
 {
   "name": "api",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "private": true,
-  "description": "Bigos API",
-  "author": "Clevertech <support@clevertech.biz>",
+  "description": "This package.json file is provided to install API dependecies",
+  "author": "github.com/pequx",
   "main": "src/index.js",
   "scripts": {
     "start": "bnr start",
@@ -11,7 +11,9 @@
     "knex": "bnr knex",
     "test": "bnr test",
     "test:integration": "bnr test:integration",
-    "pretest": "false | cp -i .env.example .env || true"
+    "pretest": "false | cp -i .env.example .env || true",
+    "lint": "eslint . --ignore-path .gitignore",
+    "lint:fix": "eslint . --ignore-path .gitignore --fix"
   },
   "betterScripts": {
     "start": "knex migrate:latest && node src/index.js",
@@ -34,9 +36,14 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFiles": ["dotenv/config"],
+    "setupFiles": [
+      "dotenv/config"
+    ],
     "collectCoverage": true,
-    "collectCoverageFrom": ["src/**/*.js", "!**/node_modules/**"]
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!**/node_modules/**"
+    ]
   },
   "dependencies": {
     "@clevertech.biz/auth-core": "0.1.3",
