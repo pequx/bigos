@@ -12,13 +12,15 @@ import NoMatch from './components/NoMatch';
 
 import history from './history';
 
+import { routes } from './constants';
+
 export default () => (
   <Router history={history}>
     <App>
       <Switch>
         <Route path="/" component={Home} exact />
         <Route path="/account" component={accountRoutes} />
-        <Route path="/timeline" component={timelineRoutes} />
+        <Route path={routes.timeline.home} component={timelineRoutes} />
         <EnsureAuthenticated>
           <Route path="/products" component={Products} />
         </EnsureAuthenticated>

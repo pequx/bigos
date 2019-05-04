@@ -28,7 +28,9 @@ const saveState = state => {
   }
 };
 
-// Initialize the Redux set up
+/**
+ * Initialize the Redux set up.
+ */
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(
@@ -43,7 +45,9 @@ store.subscribe(
   }, 1000)
 );
 
-// Run the saga now
+/**
+ * Run the saga
+ */
 sagaMiddleware.run(rootSaga);
 
 history.listen((location, action) => {

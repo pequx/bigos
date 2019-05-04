@@ -1,8 +1,7 @@
 /**
- * Database and model constants related to schema and interface references
  * @todo: create schema provider/factory, this schema is a copy of API's one
  */
-exports.dbSchema = {
+exports.schema = {
   company: {
     detail: {
       table: 'companyDetails',
@@ -13,9 +12,9 @@ exports.dbSchema = {
         description: 'companyDescription',
         location: 'companyLocation',
         parent: 'companyParent',
-        hodling: 'companyHolding',
-      },
-    },
+        hodling: 'companyHolding'
+      }
+    }
   },
   blog: {
     post: {
@@ -27,9 +26,9 @@ exports.dbSchema = {
         image: 'postImage',
         description: 'postDescription',
         keywords: 'postKeywords',
-        content: 'postContent',
-      },
-    },
+        content: 'postContent'
+      }
+    }
   },
   timeline: {
     category: {
@@ -38,8 +37,8 @@ exports.dbSchema = {
         id: 'categoryId',
         active: 'categoryActive',
         name: 'categoryName',
-        description: 'categoryDescription',
-      },
+        description: 'categoryDescription'
+      }
     },
     item: {
       table: 'timelineItems',
@@ -49,8 +48,8 @@ exports.dbSchema = {
         category: 'itemCategoryId',
         content: 'itemContent',
         start: 'itemStartDate',
-        end: 'itemEndDate',
-      },
+        end: 'itemEndDate'
+      }
     },
     detail: {
       table: 'timelineDetails',
@@ -65,51 +64,59 @@ exports.dbSchema = {
         description: 'detailDescription',
         parent: 'detailParent',
         industry: 'detailIndustry',
-        region: 'detailRegion',
-      },
-    },
-  },
-};
-
-exports.containerSchema = {
-  app: 'app',
-  api: 'api',
-  db: 'db',
+        region: 'detailRegion'
+      }
+    }
+  }
 };
 
 /**
- * Placeholders for generating seed or empty objects from factories.
+ * @see https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
  */
-exports.placeholders = {
-  imageTimelineItem: 'http://placehold.jpg/125x50.png',
+const _locales = {
+  polish: 'POL',
+  english: 'ENG',
+  german: 'GEM'
 };
 
 /**
  * Locale
- * @see https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
  */
-exports.locale = {
-  polish: 'POL',
-  english: 'ENG',
-  german: 'GEM',
-};
+exports.locale = _locales;
 
-/**
- * @todo: it seems to be redudndant
- */
-exports.factory = {
-  all: 'all',
+exports.labels = {
+  app: {
+    POL: 'BIGOS',
+    ENG: 'BIGOS',
+    GEM: 'BIGOS'
+  },
+  home: {
+    POL: 'Strona główna',
+    ENG: 'Home Page',
+    GEM: 'Startseite'
+  },
+  timeline: {
+    home: {
+      POL: 'Linia Czasu',
+      ENG: 'Timeline',
+      GEM: 'Zeitlinie'
+    }
+  }
 };
 
 /**
  * API endpoints routes
  */
 exports.routes = {
+  home: '/',
   timeline: {
+    home: '/timeline',
+    detail: '/timeline/item',
+
     item: {
       api: '/timeline/item',
       all: '/all',
-      category: '/category',
-    },
-  },
+      category: '/category'
+    }
+  }
 };

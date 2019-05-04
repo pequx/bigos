@@ -54,7 +54,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 });
 
 App.propTypes = {
-  classes: PropTypes.object.isRequired
+  children: PropTypes.object
 };
 
 export default withRouter(

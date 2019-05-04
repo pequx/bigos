@@ -5,14 +5,15 @@
 module.exports = (container = false) => {
   try {
     if (container instanceof Object) {
-      const { api, RouterTimelineItem, FactoryTimelineItem, validator } = container.cradle;
+      const { api, routes, RouterTimelineItem, FactoryTimelineItem, validator } = container.cradle;
+      const { item } = routes.timeline;
 
-      api.use('/timeline/item', RouterTimelineItem);
+      api.use(item.api, RouterTimelineItem);
 
       /**
        * Provide all items.
        */
-      RouterTimelineItem.get('/all', async (req, res) => {
+      RouterTimelineItem.get(item.all, async (req, res) => {
         const items = await new FactoryTimelineItem(container).select('all').get();
 
         res.json(validator.timeline.item.response(items));
@@ -33,7 +34,7 @@ module.exports = (container = false) => {
       /**
        * Provide all items in category/ies.
        */
-      RouterTimelineItem.get('/category/:ids', async (req, res) => {
+      RouterTimelineItem.get(`${item.category}/:ids`, async (req, res) => {
         let { ids } = req.params;
         const { dbSchema } = container.cradle;
         const { column } = dbSchema.timeline.item;

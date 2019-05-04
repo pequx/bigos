@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 import { actions } from '../redux/modules/account';
+import { routes, labels } from '../constants';
 
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -21,15 +22,17 @@ const styles = theme => ({
 });
 
 function LinkTab(props) {
-  return (
-    <Tab component={NavLink} to={props.href} onClick={event => event.preventDefault()} {...props} />
-  );
+  return <Tab component={NavLink} to={props.href} {...props} />;
 }
 
 class Navigation extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      /**
+       * @todo: implement locales
+       */
+      locale: 'ENG',
       value: 0
     };
     this.handleChange = this.handleChange.bind(this);
@@ -42,7 +45,7 @@ class Navigation extends Component {
   render() {
     const {
       props,
-      state: { value }
+      state: { locale, value }
     } = this;
     const { classes } = props;
 
@@ -53,7 +56,8 @@ class Navigation extends Component {
             <div className={classes.root}>
               <AppBar position="static">
                 <Tabs variant="fullWidth" value={value} onChange={this.handleChange}>
-                  <LinkTab label="Home" href="/" />
+                  <LinkTab label={labels.home[locale]} href={routes.home} />
+                  <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
                   {props.user && <LinkTab label="Products" href="/products" />}
                 </Tabs>
               </AppBar>
