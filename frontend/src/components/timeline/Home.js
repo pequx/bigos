@@ -1,37 +1,50 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
+
+import { bindActionCreators } from 'redux';
+import { withRouter } from 'react-router-dom';
+
+import { actions } from '../../redux/modules/timeline/items';
 
 import TimelineItems from './Items';
 
 import Grid from '@material-ui/core/Grid';
 
+const propTypes = {};
+
 class TimelineHome extends Component {
+  componentDidMount() {
+    if (!this.props.items.records) this.props.itemsRefresh();
+  }
+
   render() {
     return (
       <Grid container spacing={24}>
         <Helmet>
           <title>Timeline Home</title>
         </Helmet>
+        {JSON.stringify(this.props)}
         <TimelineItems />
       </Grid>
     );
   }
 }
 
-const mapStateToProps = state => {
-  return {};
-};
-const mapDispatchToProps = dispatch => {
-  return {};
-};
-
-TimelineHome.propTypes = {
-  classes: PropTypes.object.isRequired
+const mapStateToProps = (state, { records, total }) => {
+  return {
+    items: state.timelineItems
+  };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimelineHome);
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  ...bindActionCreators(actions, dispatch)
+});
+
+TimelineHome.propTypes = propTypes;
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(TimelineHome)
+);

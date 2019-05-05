@@ -19,14 +19,14 @@ export const actions = {
  * Reducer
  */
 const initialState = {
-  records: [],
+  records: false,
   total: 0
 };
 
 export default createReducer(initialState, (state, { type, payload }) => {
   switch (type) {
     default:
-      return state;
+      return initialState;
     case constants.ITEMS_REFRESH.SUCCESS:
       return { ...state, records: payload.records, total: payload.total };
   }

@@ -5,7 +5,11 @@ import * as api from '../../api/timeline/items';
 
 function* fetchItems(action) {
   try {
-    const payload = yield call(api.getItemsList, action);
+    let payload = yield call(api.getItemsList, action);
+    payload = {
+      records: payload,
+      total: payload.length
+    };
     yield put({ type: constants.ITEMS_REFRESH.SUCCESS, payload });
   } catch (e) {
     yield put({
