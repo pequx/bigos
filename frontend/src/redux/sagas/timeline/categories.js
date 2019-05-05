@@ -5,7 +5,11 @@ import * as api from '../../api/timeline/categories';
 
 function* fetchCategories(action) {
   try {
-    const payload = yield call(api.getCategoriesList, action);
+    let payload = yield call(api.getCategoriesList, action);
+    payload = {
+      records: payload,
+      total: payload.length
+    };
     yield put({ type: constants.CATEGORIES_REFRESH.SUCCESS, payload });
   } catch (e) {
     yield put({

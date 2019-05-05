@@ -26,7 +26,7 @@ const initialState = {
 export default createReducer(initialState, (state, { type, payload }) => {
   switch (type) {
     default:
-      return initialState;
+      return state;
     case constants.ITEMS_REFRESH.SUCCESS:
       return { ...state, records: payload.records, total: payload.total };
   }

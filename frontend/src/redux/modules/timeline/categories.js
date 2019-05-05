@@ -19,7 +19,7 @@ export const actions = {
  * Reducer
  */
 const initialState = {
-  records: [],
+  records: false,
   total: 0
 };
 

@@ -6,9 +6,10 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { actions } from '../../redux/modules/timeline/items';
 
-// import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+
+import Loader from '../../components/Loader';
 
 const propTypes = {
   itemsRefresh: PropTypes.func.isRequired,
@@ -28,16 +29,24 @@ class TimelineItems extends Component {
     if (!this.props.items.records) this.props.itemsRefresh();
   }
 
+  componentWillUpdate() {
+    if (this.props.items.records) this.props.itemsRefresh();
+  }
+
   render() {
-    return (
-      <Grid item xs={10}>
+    return this.props.items.records !== false ? (
+      <Grid item xs={12}>
         <Paper>{JSON.stringify(this.props.items)}</Paper>
+      </Grid>
+    ) : (
+      <Grid item xs={12}>
+        <Loader />
       </Grid>
     );
   }
 }
 
-const mapStateToProps = (state, { records, total }) => {
+const mapStateToProps = state => {
   return {
     items: state.timelineItems
   };

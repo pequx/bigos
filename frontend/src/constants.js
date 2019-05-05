@@ -113,6 +113,11 @@ exports.routes = {
     home: '/timeline',
     detail: '/timeline/item',
 
+    category: {
+      api: '/timeline/category',
+      all: '/all'
+    },
+
     item: {
       api: '/timeline/item',
       all: '/all',
