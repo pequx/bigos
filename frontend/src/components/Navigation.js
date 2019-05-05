@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -13,6 +13,13 @@ import Tabs from '@material-ui/core/Tabs';
 import NoSsr from '@material-ui/core/NoSsr';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
+
+const propTypes = {
+  classes: PropTypes.object.isRequired,
+  value: PropTypes.number.isRequired,
+  locale: PropTypes.string.isRequired,
+  user: PropTypes.object
+};
 
 const styles = theme => ({
   root: {
@@ -28,41 +35,39 @@ function LinkTab(props) {
 class Navigation extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      /**
-       * @todo: implement locales
-       */
-      locale: 'ENG',
-      value: 0
-    };
+
     this.handleChange = this.handleChange.bind(this);
   }
 
+  /**
+   * @todo: implement dispatch pattern
+   */
   handleChange = (event, value) => {
     this.setState({ value });
   };
 
   render() {
-    const {
-      props,
-      state: { locale, value }
-    } = this;
-    const { classes } = props;
+    const { props } = this;
+    const { classes, value, locale } = props;
 
     return (
       <Grid container spacing={24}>
         <Grid item xs={12}>
-          <NoSsr>
-            <div className={classes.root}>
-              <AppBar position="static">
-                <Tabs variant="fullWidth" value={value} onChange={this.handleChange}>
-                  <LinkTab label={labels.home[locale]} href={routes.home} />
-                  <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
-                  {props.user && <LinkTab label="Products" href="/products" />}
-                </Tabs>
-              </AppBar>
-            </div>
-          </NoSsr>
+          {value !== false ? (
+            <NoSsr>
+              <div className={classes.root}>
+                <AppBar position="static">
+                  <Tabs variant="fullWidth" value={value} onChange={this.handleChange}>
+                    <LinkTab label={labels.home[locale]} href={routes.home} />
+                    <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
+                    {props.user && <LinkTab label="Products" href="/products" />}
+                  </Tabs>
+                </AppBar>
+              </div>
+            </NoSsr>
+          ) : (
+            <div>Navigation disabled.</div>
+          )}
         </Grid>
       </Grid>
     );
@@ -71,6 +76,18 @@ class Navigation extends Component {
 
 const mapStateToProps = (state, { location }) => ({
   location,
+  locale: 'ENG',
+  value: (input => {
+    const { location, routes } = input;
+    switch (location.pathname) {
+      case routes.home:
+        return 0;
+      case routes.timeline.home:
+        return 1;
+      default:
+        return false;
+    }
+  })({ location, routes }),
   user: state.account.user
 });
 
@@ -78,9 +95,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   logout: () => dispatch(actions.logout())
 });
 
-Navigation.propTypes = {
-  classes: PropTypes.object.isRequired
-};
+Navigation.propTypes = propTypes;
 
 export default withRouter(
   withStyles(styles)(
