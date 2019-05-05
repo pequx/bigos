@@ -1,23 +1,31 @@
 {
   "name": "boilerplate",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description":
-    "This package.json file is provided to install local development tools such as eslint and commit hooks",
-  "author": "Clevertech <support@clevertech.biz>",
+  "description": "This package.json file is provided to install local development tools such as eslint and commit hooks",
+  "author": "github.com/pequx",
   "scripts": {
     "precommit": "lint-staged",
-    "lint": "eslint .",
     "e2e": "testcafe chrome e2e/*.test.js",
-    "db-client": "bnr --path=./api/.env db-client"
+    "db-client": "bnr --path=./api/.env db-client",
+    "lint": "eslint . --ignore-path .gitignore",
+    "lint:fix": "eslint . --ignore-path .gitignore --fix"
   },
   "betterScripts": {
     "db-client": "PGPASSWORD=$DB_PASSWORD psql -h 127.0.0.1 -U $DB_USER $DB_DATABASE"
   },
   "lint-staged": {
-    "*.{js,jsx}": ["eslint --fix", "git add"],
-    "*.{json,css,scss,md}": ["prettier --write", "git add"],
-    "*.*": ["git add"]
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.*": [
+      "git add"
+    ]
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",

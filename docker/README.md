@@ -1,6 +1,6 @@
 ## Docker Configuration
 
-This project is based on Docker/Docker-Compose for local development and Kubernetes for remote deployment. 
+This project is based on Docker/Docker-Compose for local development and Kubernetes for remote deployment.
 
 ### Entry points
 
@@ -10,7 +10,7 @@ Scripts `docker/run` and `docker/test` are meant to be called directly during lo
 
 Contains Dockerfiles and accessory file for Docker images that are not built by us at CT
 
-* `redis` is used during local development. Databases for server environments are usually not on Docker.
+- `redis` is used during local development. Databases for server environments are usually not on Docker.
 
 ## Run entry points without Docker
 
@@ -22,10 +22,10 @@ Never try to use this technique on production.
 First you have to correct the docker-compose.yml, exposing the port for Redis:
 
 ```yaml
-  redis:
-    build: docker/definitions/redis
-    ports: 
-      - 6379:6379
+redis:
+  build: docker/definitions/redis
+  ports:
+    - 6379:6379
 ```
 
 Consult DevOps for the details of the production deploy whether it will introduce the security breach.
@@ -53,3 +53,7 @@ $ yarn start
 ```
 
 This will start the development server, the same way as `frontend` container did, but on your host machine.
+
+## Garbage Collection
+
+Please consider installing [docker-gc](https://github.com/spotify/docker-gc) as the garbage collector for Docker containers.
