@@ -5,7 +5,7 @@ import * as api from '../../api/timeline/items';
 
 function* fetchItems(action) {
   try {
-    let payload = yield call(api.getItemsList(action.criteria), action);
+    let payload = yield call(api.getItemsList, action);
     payload = {
       records: payload,
       total: payload.length

@@ -23,7 +23,7 @@ module.exports = (container = false) => {
              */
             id(collection) {
               const condition = {
-                0: collection === factory.all,
+                0: collection === factory.all || collection === factory.mock,
                 1: _.isArray(collection),
                 2: _.every(collection, Number),
                 3: !_.includes(collection, 0),
@@ -36,7 +36,7 @@ module.exports = (container = false) => {
             },
             name(collection) {
               const condition = {
-                0: collection === factory.all,
+                0: collection === factory.all || collection === factory.mock,
                 1: _.isArray(collection),
                 2: _.every(collection, String),
               };

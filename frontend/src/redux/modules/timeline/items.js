@@ -12,7 +12,9 @@ export const constants = {
  * Actions
  */
 export const actions = {
-  itemsRefresh: (criteria = false) => ({ type: constants.ITEMS_REFRESH.ACTION, criteria })
+  itemsRefresh: (criteria = false) => {
+    return { type: constants.ITEMS_REFRESH.ACTION, criteria };
+  }
 };
 
 /**

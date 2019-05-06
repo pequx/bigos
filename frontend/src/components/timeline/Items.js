@@ -32,7 +32,7 @@ class TimelineItems extends Component {
 
   componentWillUpdate(nextProps, nextState, nextContext) {
     const { props } = this;
-    if (nextProps) {
+    if (nextProps && props.category) {
       const { category } = nextProps.match.params;
       const { column } = schema.timeline.category;
 

@@ -1,12 +1,14 @@
 import request from '../../../shared/request';
 import { routes, schema } from '../../../constants';
 
-export function getItemsList({ ...criteria }) {
-  const name = criteria[schema.timeline.category.column.name];
+const { item } = routes.timeline;
 
-  if (name) {
-    return request(routes.timeline.item.home + routes.timeline.item.category + name, {
-      method: 'GET'
-    });
-  }
+export function getItemsList(action) {
+  const { criteria } = action;
+  const path = criteria
+    ? `${item.api + item.category}/${criteria[schema.timeline.category.column.name]}`
+    : item.api + item.all;
+  return request(path, {
+    method: 'GET'
+  });
 }

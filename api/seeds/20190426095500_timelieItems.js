@@ -2,7 +2,7 @@ const awilix = require('awilix');
 const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 const { LoremIpsumConfig } = require('../src/configs');
-const { dbSchema, locale, placeholders } = require('../src/constants');
+const { dbSchema, locale, placeholders, factory } = require('../src/constants');
 const { db } = require('../src/db');
 const { item } = dbSchema.timeline;
 const { table } = item;
@@ -22,6 +22,7 @@ container.register({
   FactoryTimelineItem: asValue(Item),
   Random: asValue(new Random()),
   LoremIpsum: asValue(new LoremIpsum(LoremIpsumConfig)),
+  factory: asValue(factory),
 });
 
 container.register({ validator: asValue(require('../src/utils/validator')(container)) });
@@ -39,7 +40,7 @@ exports.seed = knex => {
       .then(async () => {
         return await knex(table)
           .returning(Object.values(timeline.item.column))
-          .insert(await new FactoryTimelineItem(container).select().get('mock'))
+          .insert(await new FactoryTimelineItem(container).select().get(factory.mock))
           .then(
             rows =>
               validator.env.local

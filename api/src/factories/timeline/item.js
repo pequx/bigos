@@ -77,8 +77,8 @@ module.exports = class Item {
         this._items.criteria = validator.timeline.item.criteria(criteria);
 
         if (await this._getItems()) {
-          const { ids, rows } = this._items;
-          return validator.timeline.item.single(ids) ? rows[0] : rows;
+          const { rows } = this._items;
+          return validator.timeline.item.single(rows) ? rows[0] : rows;
         }
         if (await this._getMocks()) {
           return this._mocks.rows;
@@ -100,62 +100,70 @@ module.exports = class Item {
         const { db, dbSchema, factory } = this._container.cradle;
         const { criteria, ids } = this._items;
 
-        if (criteria !== factory.mock) {
-          const { timeline } = dbSchema;
-          const { table, column } = timeline.item;
+        const { timeline } = dbSchema;
+        const { table, column } = timeline.item;
 
-          switch (criteria) {
-            case column.category:
-              return ids
-                ? await db(table)
-                    .select(Object.values(column))
-                    .whereIn(
-                      criteria ? criteria : column.id,
-                      ids === factory.all ? await this._selectAllItems() : ids,
-                    )
-                    .orderBy(column.start)
-                    .then(
-                      rows => (this._set(rows) ? true : false),
-                      error => {
-                        throw error;
-                      },
-                    )
-                : false;
-            case dbSchema.timeline.category.column.name:
-              return ids
-                ? await db(table)
-                    .select(Object.values(column))
-                    .whereIn(
-                      column.id,
-                      ids
-                        ? await db(timeline.category.table)
-                            .select(timeline.category.column.id)
-                            .whereIn(criteria, ids)
-                            .orderBy(timeline.category.column.id)
-                            .then(
-                              rows =>
-                                Object.values(rows).map(
-                                  current => current[timeline.category.column.id],
-                                ),
-                              error => {
-                                throw error;
-                              },
-                            )
-                        : false,
-                    )
-                    .orderBy(column.start)
-                    .then(
-                      rows => (this._set(rows) ? true : false),
-                      error => {
-                        throw error;
-                      },
-                    )
-                : false;
-            default:
-              return false;
-          }
+        switch (criteria) {
+          case column.category:
+            return ids
+              ? await db(table)
+                  .select(Object.values(column))
+                  .whereIn(column.category, ids)
+                  .orderBy(column.start)
+                  .then(
+                    rows => (this._set(rows) ? true : false),
+                    error => {
+                      throw error;
+                    },
+                  )
+              : false;
+          case dbSchema.timeline.category.column.name:
+            return ids
+              ? await db(table)
+                  .select(Object.values(column))
+                  .whereIn(
+                    column.category,
+                    ids
+                      ? await db(timeline.category.table)
+                          .select(timeline.category.column.id)
+                          .whereIn(criteria, ids)
+                          .orderBy(timeline.category.column.id)
+                          .then(
+                            rows =>
+                              Object.values(rows).map(
+                                current => current[timeline.category.column.id],
+                              ),
+                            error => {
+                              throw error;
+                            },
+                          )
+                      : false,
+                  )
+                  .orderBy(column.start)
+                  .then(
+                    rows => (this._set(rows) ? true : false),
+                    error => {
+                      throw error;
+                    },
+                  )
+              : false;
+          default:
+            return ids
+              ? await db(table)
+                  .select(Object.values(column))
+                  .whereIn(
+                    criteria ? criteria : column.id,
+                    ids === factory.all ? await this._selectAllItems() : ids,
+                  )
+                  .orderBy(column.start)
+                  .then(
+                    rows => (this._set(rows) ? true : false),
+                    error => {
+                      throw error;
+                    },
+                  )
+              : false;
         }
-        return false;
       }
       throw new Error('Cotainer is not an object');
     } catch (error) {
