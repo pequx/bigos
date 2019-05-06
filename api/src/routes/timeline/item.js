@@ -38,10 +38,18 @@ module.exports = (container = false) => {
         let { ids } = req.params;
         const { dbSchema } = container.cradle;
         const { column } = dbSchema.timeline.item;
-        ids = validator.timeline.item.id(ids.split(new RegExp(/\D/g)).map(Number));
+
+        ids = ids.split(new RegExp(/\W/g));
+        const id = validator.timeline.item.id(ids);
+        const name = !id ? validator.timeline.category.name(ids) : false;
+
         const items =
           ids.length > 0
-            ? await new FactoryTimelineItem(container).select(ids).get(column.category)
+            ? name
+              ? await new FactoryTimelineItem(container)
+                  .select(name)
+                  .get(dbSchema.timeline.category.column.name)
+              : await new FactoryTimelineItem(container).select(id).get(column.category)
             : false;
 
         res.json(validator.timeline.item.response(items));

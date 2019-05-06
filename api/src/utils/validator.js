@@ -4,7 +4,7 @@
 module.exports = (container = false) => {
   try {
     if (container instanceof Object) {
-      const { _ } = container.cradle;
+      const { _, factory } = container.cradle;
       return {
         env: {
           local: process.env.NODE_ENV === 'local',
@@ -23,10 +23,24 @@ module.exports = (container = false) => {
              */
             id(collection) {
               const condition = {
-                0: _.isArray(collection) || _.isString(collection),
-                1: !_.includes(collection, 0),
+                0: collection === factory.all,
+                1: _.isArray(collection),
+                2: _.every(collection, Number),
+                3: !_.includes(collection, 0),
               };
-              return condition[0] && condition[1] ? collection : false;
+              return condition[0]
+                ? collection
+                : condition[1] && condition[2] && condition[3]
+                ? collection
+                : false;
+            },
+            name(collection) {
+              const condition = {
+                0: collection === factory.all,
+                1: _.isArray(collection),
+                2: _.every(collection, String),
+              };
+              return condition[0] ? collection : condition[1] && condition[2] ? collection : false;
             },
             /**
              * Validates is category a single item.
@@ -64,16 +78,26 @@ module.exports = (container = false) => {
             },
           },
           item: {
-            /**
-             * Validates item id.
-             * @returns {Array|String|Boolean}
-             */
             id(collection) {
               const condition = {
-                0: _.isArray(collection) || _.isString(collection),
-                1: !_.includes(collection, 0),
+                0: collection === factory.all,
+                1: _.isArray(collection),
+                2: _.every(collection, Number),
+                3: !_.includes(collection, 0),
               };
-              return condition[0] && condition[1] ? collection : false;
+              return condition[0]
+                ? collection
+                : condition[1] && condition[2] && condition[3]
+                ? collection
+                : false;
+            },
+            name(collection) {
+              const condition = {
+                0: collection === factory.all,
+                1: _.isArray(collection),
+                2: _.every(collection, String),
+              };
+              return condition[0] ? collection : condition[1] && condition[2] ? collection : false;
             },
             /**
              * Validates is item a single item.

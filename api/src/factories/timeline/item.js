@@ -58,7 +58,7 @@ module.exports = class Item {
       if (this._container instanceof Object) {
         const { validator } = this._container.cradle;
 
-        this._items.ids = validator.timeline.item.id(ids);
+        this._items.ids = validator.timeline.item.id(ids) || validator.timeline.category.name(ids);
       }
     } catch (error) {
       console.error(`Item ids selector error`, error);
@@ -96,27 +96,68 @@ module.exports = class Item {
    */
   async _getItems() {
     try {
-      if (this._container instanceof Object && this._items.criteria !== 'mock') {
+      if (this._container instanceof Object) {
+        const { db, dbSchema, factory } = this._container.cradle;
         const { criteria, ids } = this._items;
-        const { db, dbSchema } = this._container.cradle;
-        const { table, column } = dbSchema.timeline.item;
 
-        return ids
-          ? await db(table)
-              .select(Object.values(column))
-              .whereIn(
-                criteria ? criteria : column.id,
-                ids === 'all' ? await this._selectAllItems() : ids,
-              )
-              .orderBy(column.start)
-              .then(
-                rows => (this._set(rows) ? true : false),
-                error => {
-                  throw error;
-                },
-              )
-          : false;
+        if (criteria !== factory.mock) {
+          const { timeline } = dbSchema;
+          const { table, column } = timeline.item;
+
+          switch (criteria) {
+            case column.category:
+              return ids
+                ? await db(table)
+                    .select(Object.values(column))
+                    .whereIn(
+                      criteria ? criteria : column.id,
+                      ids === factory.all ? await this._selectAllItems() : ids,
+                    )
+                    .orderBy(column.start)
+                    .then(
+                      rows => (this._set(rows) ? true : false),
+                      error => {
+                        throw error;
+                      },
+                    )
+                : false;
+            case dbSchema.timeline.category.column.name:
+              return ids
+                ? await db(table)
+                    .select(Object.values(column))
+                    .whereIn(
+                      column.id,
+                      ids
+                        ? await db(timeline.category.table)
+                            .select(timeline.category.column.id)
+                            .whereIn(criteria, ids)
+                            .orderBy(timeline.category.column.id)
+                            .then(
+                              rows =>
+                                Object.values(rows).map(
+                                  current => current[timeline.category.column.id],
+                                ),
+                              error => {
+                                throw error;
+                              },
+                            )
+                        : false,
+                    )
+                    .orderBy(column.start)
+                    .then(
+                      rows => (this._set(rows) ? true : false),
+                      error => {
+                        throw error;
+                      },
+                    )
+                : false;
+            default:
+              return false;
+          }
+        }
+        return false;
       }
+      throw new Error('Cotainer is not an object');
     } catch (error) {
       console.error('Items provider', error);
     }
@@ -131,10 +172,10 @@ module.exports = class Item {
     try {
       if (this._container instanceof Object) {
         const { ids } = this._items;
-        const { _, db, dbSchema, validator } = this._container.cradle;
+        const { _, db, dbSchema, validator, factory } = this._container.cradle;
         const { table, column } = dbSchema.timeline.item;
 
-        return ids === 'all'
+        return ids === factory.all
           ? db(table)
               .select(column.id)
               .where(column.active, true)

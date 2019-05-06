@@ -99,6 +99,7 @@ exports.locale = {
  */
 exports.factory = {
   all: 'all',
+  mock: 'mock',
   timeline: {
     category: {
       name: ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'],

@@ -5,15 +5,19 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { actions } from '../../redux/modules/timeline/items';
+import { schema } from '../../constants';
 
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 
 import Loader from '../../components/Loader';
 
+const _ = require('lodash');
+
 const propTypes = {
   itemsRefresh: PropTypes.func.isRequired,
-  items: PropTypes.object.isRequired
+  items: PropTypes.object.isRequired,
+  category: PropTypes.object
 };
 
 class TimelineItems extends Component {
@@ -28,8 +32,14 @@ class TimelineItems extends Component {
 
   componentWillUpdate(nextProps, nextState, nextContext) {
     const { props } = this;
+    if (nextProps) {
+      const { category } = nextProps.match.params;
+      const { column } = schema.timeline.category;
 
-    if (nextProps.location.pathname !== props.location.pathname) props.itemsRefresh();
+      if (category !== props.category[column.name]) {
+        props.itemsRefresh({ [column.name]: category });
+      }
+    }
   }
 
   render() {
@@ -45,9 +55,13 @@ class TimelineItems extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    items: state.timelineItems
+    items: state.timelineItems,
+    category: _.find(state.timelineCategories.records, [
+      schema.timeline.category.column.name,
+      ownProps.match.params.category
+    ])
   };
 };
 
