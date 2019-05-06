@@ -13,11 +13,21 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Icon from '@material-ui/core/Icon';
 
+const _ = require('lodash');
+
 const propTypes = {
   classes: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   categoriesRefresh: PropTypes.func.isRequired
+};
+
+const config = {
+  label: {
+    truncate: {
+      length: 20
+    }
+  }
 };
 
 const styles = {
@@ -74,7 +84,9 @@ class TimelineNavigation extends Component {
             return (
               <BottomNavigationAction
                 key={index}
-                label={current[column.name][locale]}
+                label={_.truncate(current[column.name][locale], {
+                  length: config.label.truncate.length
+                })}
                 value={index}
                 icon={icon}
               />
