@@ -2,11 +2,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
 import { actions } from '../../redux/modules/timeline/categories';
-import { schema } from '../../constants';
+import { schema, routes } from '../../constants';
+import history from '../../history';
 
 import { withStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
@@ -47,21 +48,33 @@ class TimelineNavigation extends Component {
     super(props);
 
     this.state = {
-      value: (props => {
-        const match = props.match.params.category
-          ? _.find(props.categories.records, criteria => {
-              return (criteria[schema.timeline.category.column.name] = props.match.params.category);
-            })
-          : false;
-        return match ? match[schema.timeline.category.column.id] : 1;
-      })(props)
+      // value: (props => {
+      //   const { params } = props.match;
+      //   const { category } = schema.timeline;
+      //   const first = 0;
+      //
+      //   if (_.isString(params.category)) {
+      //     const match = params.category
+      //       ? _.find(props.categories.records, [category.column.name, params.category])
+      //       : false;
+      //     return match ? match[category.column.id] - 1 : first;
+      //   }
+      //   if (_.isNumber(params.category)) {
+      //     return params.category;
+      //   }
+      //   return first;
+      // })(props)
+      value: props.match.params.category
     };
 
     this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
-    if (!this.props.categories.records) this.props.categoriesRefresh();
+    /**
+     * @todo: implement a timeout validation for the cached items.
+     */
+    this.props.categoriesRefresh();
   }
 
   /**
@@ -69,6 +82,7 @@ class TimelineNavigation extends Component {
    */
   handleChange = (event, value) => {
     this.setState({ value });
+    history.push(`${routes.timeline.category.home}/${value}`);
   };
 
   render() {
@@ -84,19 +98,20 @@ class TimelineNavigation extends Component {
         <BottomNavigation
           value={value}
           onChange={this.handleChange}
-          showLabels
+          showLabels={true}
           className={classes.root}
         >
           {Object.values(categories.records).map((current, index) => {
             const icon = <Icon>favorites</Icon>;
+
             return (
               <BottomNavigationAction
                 key={index}
-                showLabel={true}
-                label={_.truncate(current[column.name][locale], {
+                label={_.truncate(current[column.description][locale], {
                   length: config.label.truncate.length
                 })}
-                value={index}
+                showLabel={true}
+                value={current[column.name]}
                 icon={icon}
               />
             );
@@ -110,7 +125,8 @@ class TimelineNavigation extends Component {
 const mapStateToProps = state => {
   return {
     locale: 'ENG',
-    categories: state.timelineCategories
+    categories: state.timelineCategories,
+    value: false
   };
 };
 

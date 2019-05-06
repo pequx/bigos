@@ -136,10 +136,10 @@ module.exports = class Category {
 
         if (validator.env.local && !this._categories.ids) {
           this._mocks.rows = [];
+          const name = _.reverse(factory.timeline.category.name);
 
           const value = current => {
             let rows = {};
-            const name = _.reverse(factory.timeline.category.name);
 
             switch (current) {
               case column.name: {

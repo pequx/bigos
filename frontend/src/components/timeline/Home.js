@@ -6,9 +6,6 @@ import TimelineNavigation from './Navigation';
 import Grid from '@material-ui/core/Grid';
 
 class TimelineHome extends Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const { match } = this.props;
     return (

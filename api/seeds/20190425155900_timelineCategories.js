@@ -16,7 +16,7 @@ container.register({
   db: asValue(db),
   dbSchema: asValue(dbSchema),
   locale: asValue(locale),
-  factogitry: asValue(factory),
+  factory: asValue(factory),
   placeholders: asValue(placeholders),
   FactoryTimelineCategory: asValue(Category),
   Random: asValue(new Random()),

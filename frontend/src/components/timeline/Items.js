@@ -16,21 +16,20 @@ const propTypes = {
   items: PropTypes.object.isRequired
 };
 
-// const styles = theme => ({
-//   paper: {
-//     padding: theme.spacing.unit * 2,
-//     textAlign: 'center',
-//     color: theme.palette.text.secondary
-//   }
-// });
-
 class TimelineItems extends Component {
+  /**
+   * @todo: implement a timeout validation for the cached items.
+   */
   componentDidMount() {
-    if (!this.props.items.records) this.props.itemsRefresh();
+    const { props } = this;
+
+    if (!props.items.records) props.itemsRefresh();
   }
 
-  componentWillUpdate() {
-    if (this.props.items.records) this.props.itemsRefresh();
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    const { props } = this;
+
+    if (nextProps.location.pathname !== props.location.pathname) props.itemsRefresh();
   }
 
   render() {
