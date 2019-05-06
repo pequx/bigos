@@ -79,14 +79,13 @@ const mapStateToProps = (state, { location }) => ({
   locale: 'ENG',
   value: (input => {
     const { location, routes } = input;
-    switch (location.pathname) {
-      case routes.home:
-        return 0;
-      case routes.timeline.home:
-        return 1;
-      default:
-        return false;
+
+    if (location.pathname === routes.home) {
+      return 0;
+    } else if (location.pathname.includes(routes.timeline.home)) {
+      return 1;
     }
+    return false;
   })({ location, routes }),
   user: state.account.user
 });

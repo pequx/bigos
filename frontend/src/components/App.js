@@ -6,7 +6,7 @@ import { withRouter } from 'react-router-dom';
 
 import { actions } from '../redux/modules/account';
 
-// import Navigation from './Navigation';
+import Navigation from './Navigation';
 
 class App extends Component {
   constructor(props) {
@@ -37,7 +37,7 @@ class App extends Component {
           <meta charSet="utf-8" />
           <meta name="view" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         </Helmet>
-        {/*<Navigation />*/}
+        <Navigation />
         {props.children}
       </div>
     );
