@@ -16,8 +16,8 @@ exports.up = knex => {
         .boolean(column.active)
         .notNullable()
         .defaultTo(false);
-      table.jsonb(column.name).notNullable();
-      table.jsonb(column.description);
+      table.text(column.name).notNullable();
+      table.jsonb(column.description).notNullable();
 
       table.timestamps(true, true);
     })

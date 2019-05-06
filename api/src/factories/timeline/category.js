@@ -12,7 +12,7 @@ module.exports = class Category {
       rows: false,
     };
     this._mocks = {
-      count: 6,
+      count: this._container.cradle.factory.timeline.category.name.length,
       rows: false,
     };
   }
@@ -66,13 +66,13 @@ module.exports = class Category {
     try {
       if (this._container instanceof Object && this._categories.criteria !== 'mock') {
         const { ids } = this._categories;
-        const { db, dbSchema } = this._container.cradle;
+        const { db, dbSchema, factory } = this._container.cradle;
         const { table, column } = dbSchema.timeline.category;
 
         return ids
           ? await db(table)
               .select(Object.values(column))
-              .whereIn(column.id, ids === 'all' ? await this._selectAllCategories() : ids)
+              .whereIn(column.id, ids === factory.all ? await this._selectAllCategories() : ids)
               .orderBy(column.id)
               .then(
                 rows => (this._set(rows) ? true : false),
@@ -96,10 +96,10 @@ module.exports = class Category {
     try {
       if (this._container instanceof Object) {
         const { ids } = this._categories;
-        const { _, db, dbSchema, validator } = this._container.cradle;
+        const { _, db, dbSchema, validator, factory } = this._container.cradle;
         const { table, column } = dbSchema.timeline.category;
 
-        return ids === 'all'
+        return ids === factory.all
           ? db(table)
               .select(column.id)
               .where(column.active, true)
@@ -131,20 +131,19 @@ module.exports = class Category {
     try {
       if (this._container instanceof Object && this._categories.criteria === 'mock') {
         const { validator } = this._container.cradle;
-        const { _, dbSchema, locale, LoremIpsum } = this._container.cradle;
+        const { _, dbSchema, locale, LoremIpsum, factory } = this._container.cradle;
         const { column } = dbSchema.timeline.category;
 
         if (validator.env.local && !this._categories.ids) {
           this._mocks.rows = [];
+
           const value = current => {
             let rows = {};
+            const name = _.reverse(factory.timeline.category.name);
 
             switch (current) {
               case column.name: {
-                Object.values(locale).forEach(
-                  current => (rows[current] = LoremIpsum.generateSentences(1)),
-                );
-                return _.size(rows) > 0 ? JSON.stringify(rows) : false;
+                return name[this._mocks.count - 1];
               }
               case column.description: {
                 Object.values(locale).forEach(

@@ -19,7 +19,8 @@ const propTypes = {
   classes: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  categoriesRefresh: PropTypes.func.isRequired
+  categoriesRefresh: PropTypes.func.isRequired,
+  category: PropTypes.string
 };
 
 const config = {
@@ -46,7 +47,14 @@ class TimelineNavigation extends Component {
     super(props);
 
     this.state = {
-      value: 0
+      value: (props => {
+        const match = props.match.params.category
+          ? _.find(props.categories.records, criteria => {
+              return (criteria[schema.timeline.category.column.name] = props.match.params.category);
+            })
+          : false;
+        return match ? match[schema.timeline.category.column.id] : 1;
+      })(props)
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -84,6 +92,7 @@ class TimelineNavigation extends Component {
             return (
               <BottomNavigationAction
                 key={index}
+                showLabel={true}
                 label={_.truncate(current[column.name][locale], {
                   length: config.label.truncate.length
                 })}

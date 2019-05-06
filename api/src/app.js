@@ -8,7 +8,7 @@ const { LoremIpsum } = require('lorem-ipsum');
 const { LoremIpsumConfig } = require('../src/configs');
 const { apiErrorHandler } = require('./utils/errors');
 const { db } = require('../src/db');
-const { dbSchema, locale, routes } = require('../src/constants');
+const { dbSchema, locale, routes, factory } = require('../src/constants');
 
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
@@ -35,6 +35,7 @@ container.register({
   db: asValue(db),
   dbSchema: asValue(dbSchema),
   locale: asValue(locale),
+  factory: asValue(factory),
   routes: asValue(routes),
   RouterTimelineCategory: asValue(express.Router()),
   RouterTimelineItem: asValue(express.Router()),

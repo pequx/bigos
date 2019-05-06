@@ -2,7 +2,7 @@ const awilix = require('awilix');
 const { Random } = require('random-js');
 const { LoremIpsum } = require('lorem-ipsum');
 const { LoremIpsumConfig } = require('../src/configs');
-const { dbSchema, locale, placeholders } = require('../src/constants');
+const { dbSchema, locale, placeholders, factory } = require('../src/constants');
 const { db } = require('../src/db');
 const Category = require('../src/factories/timeline/category');
 
@@ -16,6 +16,7 @@ container.register({
   db: asValue(db),
   dbSchema: asValue(dbSchema),
   locale: asValue(locale),
+  factogitry: asValue(factory),
   placeholders: asValue(placeholders),
   FactoryTimelineCategory: asValue(Category),
   Random: asValue(new Random()),

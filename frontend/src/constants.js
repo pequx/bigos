@@ -111,17 +111,18 @@ exports.routes = {
   home: '/',
   timeline: {
     home: '/timeline',
-    detail: '/timeline/item',
 
     category: {
       api: '/timeline/category',
-      all: '/all'
+      all: '/all',
+      home: '/timeline/:category'
     },
 
     item: {
       api: '/timeline/item',
       all: '/all',
-      category: '/category'
+      category: '/category',
+      home: '/timeline/:category/:item'
     }
   }
 };

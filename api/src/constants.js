@@ -99,6 +99,11 @@ exports.locale = {
  */
 exports.factory = {
   all: 'all',
+  timeline: {
+    category: {
+      name: ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'],
+    },
+  },
 };
 
 /**

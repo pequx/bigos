@@ -7,9 +7,11 @@ import { routes } from '../../constants';
 
 const { timeline } = routes;
 
+const params = '/:category?/:item?';
+
 export default () => (
   <Switch>
-    <Route path={timeline.home} component={TimelineHome} />
+    <Route path={timeline.home + params} component={TimelineHome} />
     <EnsureAuthenticated>
       <Route path="/account/settings" component={TimelineHome} />
     </EnsureAuthenticated>
