@@ -45,8 +45,7 @@ module.exports = class Category {
         this._categories.criteria = validator.timeline.category.criteria(criteria);
 
         if (await this._getCategories()) {
-          const { ids, rows } = this._categories;
-          return validator.timeline.category.single(ids) ? rows[0] : rows;
+          return this._categories.rows;
         }
         if (await this._getMocks()) {
           return this._mocks.rows;

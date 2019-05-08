@@ -77,8 +77,7 @@ module.exports = class Item {
         this._items.criteria = validator.timeline.item.criteria(criteria);
 
         if (await this._getItems()) {
-          const { rows } = this._items;
-          return validator.timeline.item.single(rows) ? rows[0] : rows;
+          return this._items.rows;
         }
         if (await this._getMocks()) {
           return this._mocks.rows;

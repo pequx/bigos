@@ -5,9 +5,9 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 import { bindActionCreators } from 'redux';
-import { actions } from '../../redux/modules/timeline/categories';
-import { schema, routes } from '../../constants';
-import history from '../../history';
+import { actions as actionsCategories } from '../../redux/modules/timeline/categories';
+import { actions as actionsNavigation } from '../../redux/modules/timeline/navigation';
+import { schema } from '../../constants';
 
 import { withStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
@@ -15,13 +15,16 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Icon from '@material-ui/core/Icon';
 
 const _ = require('lodash');
+const { column } = schema.timeline.category;
 
 const propTypes = {
   classes: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   categoriesRefresh: PropTypes.func.isRequired,
-  category: PropTypes.string
+  category: PropTypes.string,
+  navigationChange: PropTypes.func.isRequired,
+  value: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]).isRequired
 };
 
 const config = {
@@ -44,32 +47,6 @@ const styles = {
 };
 
 class TimelineNavigation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      // value: (props => {
-      //   const { params } = props.match;
-      //   const { category } = schema.timeline;
-      //   const first = 0;
-      //
-      //   if (_.isString(params.category)) {
-      //     const match = params.category
-      //       ? _.find(props.categories.records, [category.column.name, params.category])
-      //       : false;
-      //     return match ? match[category.column.id] - 1 : first;
-      //   }
-      //   if (_.isNumber(params.category)) {
-      //     return params.category;
-      //   }
-      //   return first;
-      // })(props)
-      value: props.match.params.category
-    };
-
-    this.handleChange = this.handleChange.bind(this);
-  }
-
   componentDidMount() {
     /**
      * @todo: implement a timeout validation for the cached items.
@@ -77,18 +54,8 @@ class TimelineNavigation extends Component {
     this.props.categoriesRefresh();
   }
 
-  /**
-   * @todo: implement dispatch pattern
-   */
-  handleChange = (event, value) => {
-    this.setState({ value });
-    history.push(`${routes.timeline.category.home}/${value}`);
-  };
-
   render() {
-    const { classes, categories, locale } = this.props;
-    const { value } = this.state;
-    const { column } = schema.timeline.category;
+    const { classes, categories, locale, navigationChange, value } = this.props;
 
     return (
       <section className={classes.wrapper}>
@@ -97,7 +64,7 @@ class TimelineNavigation extends Component {
         </Helmet>
         <BottomNavigation
           value={value}
-          onChange={this.handleChange}
+          onChange={navigationChange}
           showLabels={true}
           className={classes.root}
         >
@@ -122,16 +89,16 @@ class TimelineNavigation extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = ({ timelineCategories, timelineNavigation }, ownProps) => {
   return {
     locale: 'ENG',
-    categories: state.timelineCategories,
-    value: false
+    categories: timelineCategories,
+    value: timelineNavigation.value
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  ...bindActionCreators(actions, dispatch)
+  ...bindActionCreators(_.merge(actionsNavigation, actionsCategories), dispatch)
 });
 
 TimelineNavigation.propTypes = propTypes;

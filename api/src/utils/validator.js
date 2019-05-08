@@ -18,7 +18,7 @@ module.exports = (container = false) => {
         timeline: {
           category: {
             /**
-             * Validates item id.
+             * Validates category id.
              * @returns {Array|String|Boolean}
              */
             id(collection) {
@@ -34,6 +34,10 @@ module.exports = (container = false) => {
                 ? collection
                 : false;
             },
+            /**
+             * Validates category name.
+             * @returns {Array|String|Boolean}
+             */
             name(collection) {
               const condition = {
                 0: collection === factory.all || collection === factory.mock,
@@ -41,13 +45,6 @@ module.exports = (container = false) => {
                 2: _.every(collection, String),
               };
               return condition[0] ? collection : condition[1] && condition[2] ? collection : false;
-            },
-            /**
-             * Validates is category a single item.
-             * @returns {Boolean}
-             */
-            single(collection) {
-              return _.isArray(collection) && collection.length == 1;
             },
             /**
              * Validates collected category entity.
@@ -77,6 +74,10 @@ module.exports = (container = false) => {
               return _.isNumber(collection) ? collection : false;
             },
           },
+          /**
+           * Validates item id.
+           * @returns {Array|String|Boolean}
+           */
           item: {
             id(collection) {
               const condition = {
@@ -91,6 +92,10 @@ module.exports = (container = false) => {
                 ? collection
                 : false;
             },
+            /**
+             * Validates item name.
+             * @returns {Array|String|Boolean}
+             */
             name(collection) {
               const condition = {
                 0: collection === factory.all,
@@ -98,13 +103,6 @@ module.exports = (container = false) => {
                 2: _.every(collection, String),
               };
               return condition[0] ? collection : condition[1] && condition[2] ? collection : false;
-            },
-            /**
-             * Validates is item a single item.
-             * @returns {Boolean}
-             */
-            single(collection) {
-              return _.isArray(collection) && collection.length == 1;
             },
             /**
              * Validates item selector criteria.

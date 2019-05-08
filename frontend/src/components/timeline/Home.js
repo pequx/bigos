@@ -7,11 +7,10 @@ import Grid from '@material-ui/core/Grid';
 
 class TimelineHome extends Component {
   render() {
-    const { match } = this.props;
     return (
       <Grid container spacing={24}>
         <TimelineItems />
-        <TimelineNavigation category={match.params.category ? match.params.category : null} />
+        <TimelineNavigation />
       </Grid>
     );
   }
