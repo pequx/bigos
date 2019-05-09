@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
 
-import { actions } from '../redux/modules/account';
 import { routes, labels } from '../constants';
+import { actions } from '../redux/modules/navigation';
 
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -14,9 +15,11 @@ import NoSsr from '@material-ui/core/NoSsr';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
 
+const _ = require('lodash');
+
 const propTypes = {
   classes: PropTypes.object.isRequired,
-  value: PropTypes.number.isRequired,
+  value: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]).isRequired,
   locale: PropTypes.string.isRequired,
   user: PropTypes.object
 };
@@ -29,69 +32,99 @@ const styles = theme => ({
 });
 
 function LinkTab(props) {
-  return <Tab component={NavLink} to={props.href} {...props} />;
+  return (
+    <Tab component={NavLink} onClick={event => event.preventDefault()} to={props.href} {...props} />
+  );
 }
 
 class Navigation extends Component {
-  constructor(props) {
-    super(props);
+  componentDidMount() {
+    const { value, location, navigationChange, history } = this.props;
 
-    this.handleChange = this.handleChange.bind(this);
+    if (!value) {
+      switch (location.pathname) {
+        case routes.home:
+          navigationChange(false, 0);
+          break;
+        case routes.timeline.home:
+          navigationChange(false, 1);
+          break;
+        default:
+          navigationChange(false, 0);
+          break;
+      }
+    }
+
+    if (_.isNumber(value)) {
+      switch (value) {
+        case 0:
+          history.push(routes.home);
+          break;
+        case 1:
+          history.push(routes.timeline.home);
+          break;
+        default:
+          history.push(routes.home);
+          break;
+      }
+    }
   }
 
-  /**
-   * @todo: implement dispatch pattern
-   */
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { value, history } = this.props;
+
+    if (_.isNumber(prevProps.value) && _.isNumber(value)) {
+      if (prevProps.value !== value) {
+        switch (value) {
+          case 0:
+            history.push(routes.home);
+            break;
+          case 1:
+            history.push(routes.timeline.home);
+            break;
+          default:
+            history.push(routes.home);
+            break;
+        }
+      }
+    }
+  }
 
   render() {
-    const { props } = this;
-    const { classes, value, locale } = props;
+    try {
+      const { classes, value, locale, navigationChange } = this.props;
 
-    return (
-      <Grid container spacing={24}>
-        <Grid item xs={12}>
-          {value !== false ? (
+      return (
+        <Grid container spacing={24}>
+          <Grid item xs={12}>
             <NoSsr>
               <div className={classes.root}>
                 <AppBar position="static">
-                  <Tabs variant="fullWidth" value={value} onChange={this.handleChange}>
+                  <Tabs variant="fullWidth" value={value} onChange={navigationChange}>
                     <LinkTab label={labels.home[locale]} href={routes.home} />
                     <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
-                    {props.user && <LinkTab label="Products" href="/products" />}
                   </Tabs>
                 </AppBar>
               </div>
             </NoSsr>
-          ) : (
-            <div>Navigation disabled.</div>
-          )}
+          </Grid>
         </Grid>
-      </Grid>
-    );
+      );
+    } catch (error) {
+      return <div>{error}</div>;
+    }
   }
 }
 
-const mapStateToProps = (state, { location }) => ({
-  location,
-  locale: 'ENG',
-  value: (input => {
-    const { location, routes } = input;
-
-    if (location.pathname === routes.home) {
-      return 0;
-    } else if (location.pathname.includes(routes.timeline.home)) {
-      return 1;
-    }
-    return false;
-  })({ location, routes }),
-  user: state.account.user
-});
+const mapStateToProps = ({ navigation }, ownProps) => {
+  return {
+    locale: 'ENG',
+    value: navigation.value
+  };
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  logout: () => dispatch(actions.logout())
+  ...bindActionCreators(actions, dispatch)
 });
 
 Navigation.propTypes = propTypes;

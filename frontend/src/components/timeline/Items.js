@@ -25,7 +25,7 @@ const propTypes = {
 const config = {
   timeline: {
     width: '100%',
-    height: '200px',
+    height: '300px',
     min: false,
     max: _.now(),
     zoomMin: Number('7.884e+9'),
@@ -36,12 +36,15 @@ const config = {
 
 class TimelineItems extends Component {
   componentDidMount() {
-    const { props } = this;
-    const { match } = props;
     const { column } = schema.timeline.category;
+    const { category, itemsRefresh } = this.props;
 
-    if (match.params.category) props.itemsRefresh({ [column.name]: match.params.category });
-    if (!match.params.category) props.itemsRefresh();
+    if (_.isObject(category)) {
+      itemsRefresh({ [column.name]: category[column.name] });
+    }
+    if (_.isNil(category) || !category) {
+      itemsRefresh();
+    }
   }
 
   // componentWillUpdate(nextProps, nextState, nextContext) {
@@ -67,35 +70,26 @@ class TimelineItems extends Component {
   //   }
   // }
 
-  // componentDidUpdate(prevProps, prevState, snapshot) {
-  //   const { category, itemsRefresh, match } = this.props;
-  //   const { column } = schema.timeline.category;
-  //
-  //   if (_.isNil(match.params.category) && _.isNil(category)) {
-  //     itemsRefresh();
-  //   }
-  //
-  //   if (
-  //     _.isNil(prevProps.category) &&
-  //     _.isObject(category) &&
-  //     match.params.category === category[column.name]
-  //   ) {
-  //     itemsRefresh({ [column.name]: category[column.name] });
-  //   }
-  // }
-
   componentWillUpdate(nextProps, nextState, nextContext) {
     const { column } = schema.timeline.category;
-    const { category } = nextProps;
+    const { itemsRefresh, category } = this.props;
 
-    if (category[column.name] !== this.props.category[column.name]) {
-      this.props.itemsRefresh({ [column.name]: category[column.name] });
+    if (_.isObject(nextProps.category)) {
+      if (_.isObject(category)) {
+        if (nextProps.category[column.id] !== category[column.id]) {
+          itemsRefresh({ [column.name]: nextProps.category[column.name] });
+        }
+      }
+      if (_.isNil(category)) {
+        itemsRefresh({ [column.name]: nextProps.category[column.name] });
+      }
     }
 
-    if (!category) {
-      this.props.itemsRefresh();
+    if (_.isNil(nextProps.category)) {
+      if (_.isObject(category)) {
+        itemsRefresh();
+      }
     }
-    return true;
   }
 
   render() {

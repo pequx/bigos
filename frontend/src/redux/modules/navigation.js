@@ -1,10 +1,11 @@
-import { createSagaAction } from '../../../shared/sagas';
-import { createReducer } from '../../../shared/reducers';
+import { createSagaAction } from '../../shared/sagas';
+import { createReducer } from '../../shared/reducers';
+
 /**
  * Constants
  */
 export const constants = {
-  TIMELINE_NAVIGATION_CHANGE: createSagaAction('TIMELINE_NAVIGATION_CHANGE')
+  NAVIGATION_CHANGE: createSagaAction('NAVIGATION_CHANGE')
 };
 
 /**
@@ -12,7 +13,7 @@ export const constants = {
  */
 export const actions = {
   navigationChange: (event, value) => {
-    return { type: constants.TIMELINE_NAVIGATION_CHANGE.ACTION, value };
+    return { type: constants.NAVIGATION_CHANGE.ACTION, value };
   }
 };
 
@@ -27,7 +28,7 @@ export default createReducer(initialState, (state, { type, value }) => {
   switch (type) {
     default:
       return state;
-    case constants.TIMELINE_NAVIGATION_CHANGE.ACTION:
+    case constants.NAVIGATION_CHANGE.ACTION:
       return { ...state, value: value };
   }
 });

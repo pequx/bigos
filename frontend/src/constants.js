@@ -100,6 +100,13 @@ exports.labels = {
       POL: 'Linia Czasu',
       ENG: 'Timeline',
       GEM: 'Zeitlinie'
+    },
+    navigation: {
+      all: {
+        POL: 'Wszystkie',
+        ENG: 'All',
+        GEM: 'Alle'
+      }
     }
   }
 };

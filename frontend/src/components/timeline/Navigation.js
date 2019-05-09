@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { actions as actionsCategories } from '../../redux/modules/timeline/categories';
 import { actions as actionsNavigation } from '../../redux/modules/timeline/navigation';
-import { schema } from '../../constants';
+import { schema, routes, labels } from '../../constants';
 
 import { withStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
@@ -48,14 +48,63 @@ const styles = {
 
 class TimelineNavigation extends Component {
   componentDidMount() {
-    /**
-     * @todo: implement a timeout validation for the cached items.
-     */
-    this.props.categoriesRefresh();
+    const { categories, value, history, categoriesRefresh, navigationChange } = this.props;
+
+    if (categories.total > 0) {
+      if (value !== 'all') {
+        history.push(`${routes.timeline.home}/${value}`);
+      }
+      if (value === 'all') {
+        history.push(`${routes.timeline.home}`);
+      }
+      if (!value) {
+        navigationChange(false, 'all');
+      }
+    }
+    if (categories.total === 0) {
+      categoriesRefresh();
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    const value = nextProps.value;
+
+    if (this.props.value !== value) {
+      nextProps.history.push(
+        value === 'all' ? routes.timeline.home : `${routes.timeline.home}/${value}`
+      );
+    }
   }
 
   render() {
     const { classes, categories, locale, navigationChange, value } = this.props;
+
+    const tabs = Object.values(categories.records).map((current, index) => {
+      const icon = <Icon>favorites</Icon>;
+
+      return (
+        <BottomNavigationAction
+          key={index}
+          label={_.truncate(current[column.description][locale], {
+            length: config.label.truncate.length
+          })}
+          showLabel={true}
+          value={current[column.name]}
+          icon={icon}
+        />
+      );
+    });
+
+    tabs.unshift(
+      <BottomNavigationAction
+        key={tabs.length}
+        label={_.truncate(labels.timeline.navigation.all[locale], {
+          length: config.label.truncate.length
+        })}
+        showLabel={true}
+        value="all"
+      />
+    );
 
     return (
       <section className={classes.wrapper}>
@@ -68,21 +117,7 @@ class TimelineNavigation extends Component {
           showLabels={true}
           className={classes.root}
         >
-          {Object.values(categories.records).map((current, index) => {
-            const icon = <Icon>favorites</Icon>;
-
-            return (
-              <BottomNavigationAction
-                key={index}
-                label={_.truncate(current[column.description][locale], {
-                  length: config.label.truncate.length
-                })}
-                showLabel={true}
-                value={current[column.name]}
-                icon={icon}
-              />
-            );
-          })}
+          {tabs}
         </BottomNavigation>
       </section>
     );
