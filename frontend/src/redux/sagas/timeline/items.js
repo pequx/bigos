@@ -2,13 +2,17 @@ import { all, fork, call, put, takeLatest } from 'redux-saga/effects';
 
 import { constants } from '../../modules/timeline/items';
 import * as api from '../../api/timeline/items';
+import { schema } from '../../../constants';
+
+const _ = require('lodash');
 
 function* fetchItems(action) {
   try {
     let payload = yield call(api.getItemsList, action);
     payload = {
       records: payload,
-      total: payload.length
+      total: payload.length,
+      config: refreshConfig(payload)
     };
     yield put({ type: constants.ITEMS_REFRESH.SUCCESS, payload });
   } catch (e) {
@@ -19,6 +23,31 @@ function* fetchItems(action) {
   }
 }
 
+function refreshConfig(payload) {
+  const { column } = schema.timeline.item;
+  const values = {
+    min: _.first(payload)[column.start],
+    max: _.last(payload)[column.start]
+  };
+
+  return payload
+    ? {
+        timeline: {
+          width: '100%',
+          height: '300px',
+          min: values.min,
+          max: values.max,
+          start: values.min,
+          end: values.max,
+          zoomMin: Number('7.884e+9'),
+          zoomMax: 315360000000000,
+          autoResize: true,
+          zoomable: true
+        }
+      }
+    : false;
+}
+
 /**
  * Saga
  */
@@ -26,10 +55,13 @@ function* itemsRefresh() {
   yield takeLatest(constants.ITEMS_REFRESH.ACTION, fetchItems);
 }
 
+// function* configRefresh() {
+//   yield takeLatest(constants.CONFIG_REFRESH.ACTION, refreshConfig);
+// }
+
 /**
  * Export the root saga by forking all available sagas
  */
 export function* rootSaga() {
-  // add more sagas here
   yield all([fork(itemsRefresh)]);
 }

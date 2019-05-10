@@ -15,11 +15,15 @@ import NoSsr from '@material-ui/core/NoSsr';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
 
+// import Loader from './Loader';
+
+const _ = require('lodash');
+
 const propTypes = {
   classes: PropTypes.object.isRequired,
   value: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]).isRequired,
   locale: PropTypes.string.isRequired,
-  user: PropTypes.object
+  navigationChange: PropTypes.func.isRequired
 };
 
 const styles = theme => ({
@@ -36,29 +40,35 @@ function LinkTab(props) {
 }
 
 class Navigation extends Component {
-  render() {
-    try {
-      const { classes, value, locale, navigationChange } = this.props;
+  componentDidMount() {
+    const { navigationChange, location } = this.props;
+    const { pathname } = location;
 
-      return (
-        <Grid container spacing={24}>
-          <Grid item xs={12}>
-            <NoSsr>
-              <div className={classes.root}>
-                <AppBar position="static">
-                  <Tabs variant="fullWidth" value={value} onChange={navigationChange}>
-                    <LinkTab label={labels.home[locale]} href={routes.home} />
-                    <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
-                  </Tabs>
-                </AppBar>
-              </div>
-            </NoSsr>
-          </Grid>
-        </Grid>
-      );
-    } catch (error) {
-      return <div>{error}</div>;
+    if (_.isString(pathname)) {
+      if (pathname.includes(routes.home)) navigationChange(false, 0);
+      if (pathname.includes(routes.timeline.home)) navigationChange(false, 1);
     }
+  }
+
+  render() {
+    const { classes, value, locale, navigationChange } = this.props;
+
+    return (
+      <Grid container spacing={24}>
+        <Grid item xs={12}>
+          <NoSsr>
+            <div className={classes.root}>
+              <AppBar position="static">
+                <Tabs variant="fullWidth" value={value} onChange={navigationChange}>
+                  <LinkTab label={labels.home[locale]} href={routes.home} />
+                  <LinkTab label={labels.timeline.home[locale]} href={routes.timeline.home} />
+                </Tabs>
+              </AppBar>
+            </div>
+          </NoSsr>
+        </Grid>
+      </Grid>
+    );
   }
 }
 

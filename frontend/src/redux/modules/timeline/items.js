@@ -6,6 +6,7 @@ import { createReducer } from '../../../shared/reducers';
  */
 export const constants = {
   ITEMS_REFRESH: createSagaAction('ITEMS_REFRESH')
+  // CONFIG_REFRESH: createSagaAction('CONFIG_REFRESH')
 };
 
 /**
@@ -22,7 +23,8 @@ export const actions = {
  */
 const initialState = {
   records: false,
-  total: 0
+  total: 0,
+  config: false
 };
 
 export default createReducer(initialState, (state, { type, payload }) => {
@@ -30,6 +32,6 @@ export default createReducer(initialState, (state, { type, payload }) => {
     default:
       return state;
     case constants.ITEMS_REFRESH.SUCCESS:
-      return { ...state, records: payload.records, total: payload.total };
+      return { ...state, records: payload.records, total: payload.total, config: payload.config };
   }
 });

@@ -7,12 +7,14 @@ import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { actions as actionsCategories } from '../../redux/modules/timeline/categories';
 import { actions as actionsNavigation } from '../../redux/modules/timeline/navigation';
-import { schema, routes, labels } from '../../constants';
+import { schema, labels } from '../../constants';
 
 import { withStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Icon from '@material-ui/core/Icon';
+
+// import Loader from './../Loader';
 
 const _ = require('lodash');
 
@@ -49,7 +51,7 @@ const styles = {
 
 class TimelineNavigation extends Component {
   componentDidMount() {
-    const { categories, history, value, categoriesRefresh } = this.props;
+    const { categories, value, categoriesRefresh, navigationChange } = this.props;
 
     if (_.isObject(categories)) {
       const { records } = categories;
@@ -59,7 +61,7 @@ class TimelineNavigation extends Component {
         const category = index > -1 ? records[index] : false;
 
         if (_.isObject(category)) {
-          history.push(`${routes.timeline.home}/${category[column.name]}`);
+          navigationChange(false, category[column.name]);
         }
       }
 

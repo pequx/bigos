@@ -11,7 +11,7 @@ export const constants = {
  * Actions
  */
 export const actions = {
-  navigationChange: (event, value) => {
+  navigationChange: (event, value = false) => {
     return { type: constants.TIMELINE_NAVIGATION_CHANGE.ACTION, value };
   }
 };

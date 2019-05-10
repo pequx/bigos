@@ -22,18 +22,6 @@ const propTypes = {
   category: PropTypes.object
 };
 
-const config = {
-  timeline: {
-    width: '100%',
-    height: '300px',
-    min: false,
-    max: _.now(),
-    zoomMin: Number('7.884e+9'),
-    zoomMax: 315360000000000,
-    autoResize: true
-  }
-};
-
 class TimelineItems extends Component {
   componentDidMount() {
     const { column } = schema.timeline.category;
@@ -47,69 +35,42 @@ class TimelineItems extends Component {
     }
   }
 
-  // componentWillUpdate(nextProps, nextState, nextContext) {
-  //   const { column } = schema.timeline.category;
-  //   const { itemsRefresh, category } = this.props;
-  //
-  //   if (_.isObject(nextProps.category)) {
-  //     if (_.isObject(category)) {
-  //       if (nextProps.category[column.id] !== category[column.id]) {
-  //         itemsRefresh({ [column.name]: nextProps.category[column.name] });
-  //       }
-  //     }
-  //     if (_.isNil(category)) {
-  //       itemsRefresh({ [column.name]: nextProps.category[column.name] });
-  //     }
-  //   }
-  //
-  //   if (_.isNil(nextProps.category)) {
-  //     if (_.isObject(category)) {
-  //       itemsRefresh();
-  //     }
-  //   }
-  // }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentWillUpdate(nextProps, nextState, nextContext) {
     const { column } = schema.timeline.category;
-    const { category, itemsRefresh } = this.props;
+    const { itemsRefresh, category } = this.props;
 
-    if (_.isObject(prevProps.category)) {
-      if (_.isNil(category)) {
-        itemsRefresh();
-      }
+    if (_.isObject(nextProps.category)) {
       if (_.isObject(category)) {
-        if (prevProps.category[column.id] !== category[column.id]) {
-          itemsRefresh({ [column.name]: category[column.name] });
+        if (nextProps.category[column.id] !== category[column.id]) {
+          itemsRefresh({ [column.name]: nextProps.category[column.name] });
         }
       }
+      if (_.isNil(category)) {
+        itemsRefresh({ [column.name]: nextProps.category[column.name] });
+      }
     }
-
-    if (_.isNil(prevProps.category)) {
+    if (_.isNil(nextProps.category)) {
       if (_.isObject(category)) {
-        itemsRefresh({ [column.name]: category[column.name] });
+        itemsRefresh();
       }
     }
   }
 
   render() {
-    const { props } = this;
-    let { records } = props.items;
+    let { items, locale, config } = this.props;
 
-    if (_.size(records) > 0) {
-      const { column } = schema.timeline.item;
+    if (items.total > 0 && config) {
+      let { records } = items;
+      records = (records => {
+        const { column } = schema.timeline.item;
 
-      records = _.sortBy(records, column.start);
-
-      config.timeline.min = _.first(records)[column.start];
-      config.timeline.max = _.last(records)[column.start];
-
-      records = (records =>
-        Object.values(records).map(current => ({
+        return Object.values(records).map(current => ({
           id: current[column.id],
-          content: current[column.content][props.locale],
+          content: current[column.content][locale],
           start: current[column.start],
           end: current[column.end]
-        })))(records);
+        }));
+      })(records);
 
       return (
         <Grid item xs={12}>
@@ -131,6 +92,7 @@ const mapStateToProps = (state, ownProps) => {
       schema.timeline.category.column.name,
       state.timelineNavigation.value
     ]),
+    config: state.timelineItems.config,
     locale: 'ENG'
   };
 };
