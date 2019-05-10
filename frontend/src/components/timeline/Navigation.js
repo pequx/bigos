@@ -15,6 +15,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Icon from '@material-ui/core/Icon';
 
 const _ = require('lodash');
+
 const { column } = schema.timeline.category;
 
 const propTypes = {
@@ -48,31 +49,23 @@ const styles = {
 
 class TimelineNavigation extends Component {
   componentDidMount() {
-    const { categories, value, history, categoriesRefresh, navigationChange } = this.props;
+    const { categories, history, value, categoriesRefresh } = this.props;
 
-    if (categories.total > 0) {
-      if (value !== 'all') {
-        history.push(`${routes.timeline.home}/${value}`);
-      }
-      if (value === 'all') {
-        history.push(`${routes.timeline.home}`);
-      }
-      if (!value) {
-        navigationChange(false, 'all');
-      }
-    }
-    if (categories.total === 0) {
-      categoriesRefresh();
-    }
-  }
+    if (_.isObject(categories)) {
+      const { records } = categories;
 
-  componentWillUpdate(nextProps, nextState, nextContext) {
-    const value = nextProps.value;
+      if (_.isString(value) && records) {
+        const index = _.findIndex(records, [column.name, value]);
+        const category = index > -1 ? records[index] : false;
 
-    if (this.props.value !== value) {
-      nextProps.history.push(
-        value === 'all' ? routes.timeline.home : `${routes.timeline.home}/${value}`
-      );
+        if (_.isObject(category)) {
+          history.push(`${routes.timeline.home}/${category[column.name]}`);
+        }
+      }
+
+      if (!value && !records) {
+        categoriesRefresh();
+      }
     }
   }
 

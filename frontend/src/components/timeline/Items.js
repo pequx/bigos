@@ -48,46 +48,45 @@ class TimelineItems extends Component {
   }
 
   // componentWillUpdate(nextProps, nextState, nextContext) {
-  //   const { category, itemsRefresh, match } = this.props;
-  //   const { params } = match;
   //   const { column } = schema.timeline.category;
+  //   const { itemsRefresh, category } = this.props;
   //
-  //   if (_.isObject(category)) {
-  //     if (_.isObject(nextProps.category)) {
-  //       if (nextProps.category[column.id] !== category[column.id] && _.isString(params.category)) {
+  //   if (_.isObject(nextProps.category)) {
+  //     if (_.isObject(category)) {
+  //       if (nextProps.category[column.id] !== category[column.id]) {
   //         itemsRefresh({ [column.name]: nextProps.category[column.name] });
   //       }
   //     }
-  //     if (_.isNil(nextProps.category) && _.isNil(nextProps.match.params.category)) {
-  //       itemsRefresh();
+  //     if (_.isNil(category)) {
+  //       itemsRefresh({ [column.name]: nextProps.category[column.name] });
   //     }
   //   }
   //
-  //   if (_.isNil(category)) {
-  //     if (_.isString(nextProps.match.params.category)) {
-  //       itemsRefresh({ [column.name]: nextProps.category[column.name] });
+  //   if (_.isNil(nextProps.category)) {
+  //     if (_.isObject(category)) {
+  //       itemsRefresh();
   //     }
   //   }
   // }
 
-  componentWillUpdate(nextProps, nextState, nextContext) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { column } = schema.timeline.category;
-    const { itemsRefresh, category } = this.props;
+    const { category, itemsRefresh } = this.props;
 
-    if (_.isObject(nextProps.category)) {
-      if (_.isObject(category)) {
-        if (nextProps.category[column.id] !== category[column.id]) {
-          itemsRefresh({ [column.name]: nextProps.category[column.name] });
-        }
-      }
+    if (_.isObject(prevProps.category)) {
       if (_.isNil(category)) {
-        itemsRefresh({ [column.name]: nextProps.category[column.name] });
+        itemsRefresh();
+      }
+      if (_.isObject(category)) {
+        if (prevProps.category[column.id] !== category[column.id]) {
+          itemsRefresh({ [column.name]: category[column.name] });
+        }
       }
     }
 
-    if (_.isNil(nextProps.category)) {
+    if (_.isNil(prevProps.category)) {
       if (_.isObject(category)) {
-        itemsRefresh();
+        itemsRefresh({ [column.name]: category[column.name] });
       }
     }
   }

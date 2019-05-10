@@ -15,8 +15,6 @@ import NoSsr from '@material-ui/core/NoSsr';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
 
-const _ = require('lodash');
-
 const propTypes = {
   classes: PropTypes.object.isRequired,
   value: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]).isRequired,
@@ -38,58 +36,6 @@ function LinkTab(props) {
 }
 
 class Navigation extends Component {
-  componentDidMount() {
-    const { value, location, navigationChange, history } = this.props;
-
-    if (!value) {
-      switch (location.pathname) {
-        case routes.home:
-          navigationChange(false, 0);
-          break;
-        case routes.timeline.home:
-          navigationChange(false, 1);
-          break;
-        default:
-          navigationChange(false, 0);
-          break;
-      }
-    }
-
-    if (_.isNumber(value)) {
-      switch (value) {
-        case 0:
-          history.push(routes.home);
-          break;
-        case 1:
-          history.push(routes.timeline.home);
-          break;
-        default:
-          history.push(routes.home);
-          break;
-      }
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { value, history } = this.props;
-
-    if (_.isNumber(prevProps.value) && _.isNumber(value)) {
-      if (prevProps.value !== value) {
-        switch (value) {
-          case 0:
-            history.push(routes.home);
-            break;
-          case 1:
-            history.push(routes.timeline.home);
-            break;
-          default:
-            history.push(routes.home);
-            break;
-        }
-      }
-    }
-  }
-
   render() {
     try {
       const { classes, value, locale, navigationChange } = this.props;
