@@ -81,7 +81,11 @@ exports.containerSchema = {
  * Placeholders for generating seed or empty objects from factories.
  */
 exports.placeholders = {
-  imageTimelineItem: 'http://placehold.jpg/125x50.png',
+  /**
+   * @link http://schepers.cc/svg/svg-datauri-img.html
+   */
+  imageTimelineItem:
+    "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'130'%20height%3D'50'%3E%3Crect%20width%3D'100%25'%20height%3D'100%25'%20fill%3D'crimson'%2F%3E%3Cline%20x1%3D'0'%20x2%3D'130'%20y1%3D'0'%20y2%3D'50'%20stroke%3D'gainsboro'%2F%3E%20%3Cline%20x1%3D'130'%20x2%3D'0'%20y1%3D'0'%20y2%3D'50'%20stroke%3D'gainsboro'%2F%3E%3Ctext%20x%3D'65'%20y%3D'30'%20font-size%3D'20'%20font%3D'Verdana%2C%20sans-serif'%20fill%3D'white'%20text-anchor%3D'middle'%3E130%20x%2050%3C%2Ftext%3E%3C%2Fsvg%3E",
 };
 
 /**

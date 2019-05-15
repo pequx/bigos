@@ -56,6 +56,16 @@ class TimelineItems extends Component {
     }
   }
 
+  // componentDidUpdate(prevProps, prevState, snapshot) {
+  //   const { items } = this.props;
+  //
+  //   if (_.isObject(items) && _.isObject(prevProps.items)) {
+  //     if (prevProps.items === items) {
+  //       this.loading = true;
+  //     }
+  //   }
+  // }
+
   render() {
     let { items, locale, config } = this.props;
 

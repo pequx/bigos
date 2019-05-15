@@ -119,7 +119,7 @@ class TimelineNavigation extends Component {
   }
 }
 
-const mapStateToProps = ({ timelineCategories, timelineNavigation }, ownProps) => {
+const mapStateToProps = ({ timelineCategories, timelineNavigation, timelineItems }, ownProps) => {
   return {
     locale: 'ENG',
     categories: timelineCategories,

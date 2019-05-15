@@ -44,7 +44,7 @@ module.exports = class Item {
       criteria: false,
     };
     this._mocks = {
-      count: 10,
+      count: 16,
       rows: false,
     };
   }
@@ -224,7 +224,7 @@ module.exports = class Item {
             const alt = LoremIpsum.generateSentences(1);
 
             Object.values(locale).forEach(
-              current => (rows[current] = `<img src="${placeholder}" alt="${alt}"`),
+              current => (rows[current] = `<img src="${placeholder}" alt="${alt}" />`),
             );
             return _.size(rows) > 0 ? JSON.stringify(rows) : false;
           };

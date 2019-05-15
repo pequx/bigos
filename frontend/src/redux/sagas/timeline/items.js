@@ -5,6 +5,7 @@ import * as api from '../../api/timeline/items';
 import { schema } from '../../../constants';
 
 const _ = require('lodash');
+const moment = require('moment');
 
 function* fetchItems(action) {
   try {
@@ -26,8 +27,8 @@ function* fetchItems(action) {
 function refreshConfig(payload) {
   const { column } = schema.timeline.item;
   const values = {
-    min: _.first(payload)[column.start],
-    max: _.last(payload)[column.start]
+    min: moment(_.first(payload)[column.start]).add(-12, 'month'),
+    max: moment(_.last(payload)[column.start]).add(12, 'month')
   };
 
   return payload
